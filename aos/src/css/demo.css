@@ -1,0 +1,39 @@
+#gameboard {
+	width: 3000;
+	height: 1000;
+	background-color: lightblue;
+}
+
+.basicHex {
+	fill: green;
+	stroke: black;
+}
+
+.blankHex {
+	fill: none;
+	stroke: none;
+}
+
+.lakeHex {
+	fill: blue;
+	stroke: none;
+}
+
+.mountainHex {
+	fill: grey;
+	stroke: black;
+}
+
+.town {
+	fill: white;
+	stroke: black;
+}
+
+.city {
+	stroke-width: 2;
+	stroke: black;
+}
+
+.cityRed {
+	fill: red;
+}

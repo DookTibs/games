@@ -1,0 +1,62 @@
+1 board
+7 locomotives (7 colors)
+128 share cards
+60 track tiles
+28 stations (4 colors)
+45 tokens (5 types) figure out goods distrbution (each cty gets 3 for instance, but which?) - an image on BGG will help
+100 bank notes
+
+-- THOUGHTS --
+1. skip bank notes
+2. crayon rail?
+3. just do it as ipad! all public knowledge; see http://www.redblobgames.com/grids/hexagons/
+4. skip tiles and just use a generic circular marker (poker chip, etc.) to mark track - also handles
+	problem of sizing board and hex tiles!
+
+German Railways trains: blue, orange, brown, black, yellow, red, purple, green
+Macao: lots of cubes
+Power Grid: lots of houses: blue, purple, green, yellow, red, black
+Taj: palaces in blue, red, light tan, dark tan,  grey
+
+CHEAPEST POSSIBLE WAy TO PROTOTYPE
+1. no box
+	2. print board on four sheets of paper, tape together
+3. use slips of paper with company names (sleeved even) for shares
+4. use 60 tiddlywinks (maybe ownership discs from AoS, maybe poker chips from Wits & Wagers) for track
+5. use locos from German Railways (orange, brown, black, yellow, red, green, purple) as locos
+6. use palaces from Taj (blue, light tan, dark tan, grey)
+	7. use cubes for goods tokens: colored to match good type, with some kind of marking to indicate city of origin (sticker?)
+8. use chips for money
+
+trains, palaces, flattish discs, cubes
+
+
+(
+5. use locos from German Railways (blue, orange, brown, black, yellow, red, green) as locos
+6. use cubes from Santiago (white, purple, grey, natural) as stations
+)
+
+
+printplaygames
+??? - box
+??? - board
+$1.54 - 7 wood trains, $0.22 each. WILL NEED TO PAINT
+$8.00 - 128 doublesided 1.75"x2.5" cards, $2.00 each
+$11.25 - 1.5" hex, doublesided, white chip. $3.75 each
+$7.00 - 28 wood city pieces, $0.25 each.
+$3.25 - 1 sheet of 48 0.79" circles for steel/textiles/etc.
+$0.00 - will not use cash, just use 100 chips
+
+$30 before board/box/paint
+
+OR
+$6.25 box (11.5x9, printed all sides)
+$10 board (quad fold, 8.5x11)
+$1.50 trains
+$8.00 cards
+$2.00 plastic track discs
+$6.00 wood houses
+$3.25 - sheet of small circles
+~ $37 total
+
+(if i do this, maybe get a box for Fresh Fish while I'm at it)

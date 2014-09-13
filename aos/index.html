@@ -1,0 +1,73 @@
+<html>
+
+	<head>
+		<link rel="stylesheet" type="text/css" href="src/css/demo.css">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+		<script src="lib/Snap.svg-0.3.0/dist/snap.svg-min.js"></script>
+		<script src="src/js/demo.js"></script>
+
+		<script>
+			$(document).ready(function() {
+					// var s = Snap("#gameboard");
+					// var hd = new HexDrawer(s);
+					var hd = new HexDrawer("gameboard");
+					// hd.drawHex({x: 100, y:75}, 50, "basicHex");
+
+					// draw the Puerto Rico solitaire map
+					hd.drawHexGrid(5, 13, 100,
+													{
+														"0,0": { class: "blankHex" }
+														, "0,2": { town: { name: "Mayaguez" } }
+														, "0,4": { town: { name: "Casa Rojo" } }
+														, "1,0": { town: { name: "Aguadilla" } }
+														, "1,3": { class: "mountainHex" }
+														, "1,4": { class: "blankHex" }
+														, "2,2": { class: "mountainHex" }
+														, "2,3": { class: "mountainHex" }
+														, "3,0": { class: "mountainHex" }
+														, "3,1": { class: "mountainHex" }
+														, "3,2": { class: "mountainHex" }
+														, "3,4": { class: "blankHex" }
+														, "4,0": { town: { name: "Arecibo" } }
+														, "4,1": { class: "mountainHex" }
+														, "4,2": { town: { name: "Utuado" } }
+														, "4,3": { class: "mountainHex" }
+														, "5,0": { class: "mountainHex" }
+														, "5,1": { class: "mountainHex" }
+														, "5,2": { class: "mountainHex" }
+														, "5,3": { town: { name: "Ponce" } }
+														, "5,4": { class: "blankHex" }
+														, "6,2": { class: "mountainHex" }
+														, "6,3": { class: "mountainHex" }
+														, "6,4": { class: "blankHex" }
+														, "7,2": { class: "mountainHex" }
+														, "7,3": { class: "mountainHex" }
+														, "7,4": { class: "blankHex" }
+														, "8,1": { town: { name: "Bayamon" } }
+														, "8,2": { class: "mountainHex" }
+														, "8,3": { town: { name: "Cayey" } }
+														, "9,0": { city: { name: "San Juan", color: "red" } }
+														, "9,1": { town: { name: "Caguas" } }
+														, "9,2": { class: "mountainHex" }
+														, "9,4": { class: "blankHex" }
+														, "10,2": { class: "mountainHex" }
+														, "10,4": { class: "blankHex" }
+														, "11,2": { town: { name: "Humm?" } }
+														, "11,3": { class: "blankHex" }
+														, "11,4": { class: "blankHex" }
+														, "12,0": { town: { name: "Luquao" } }
+														, "12,2": { class: "blankHex" }
+														, "12,3": { class: "blankHex" }
+														, "12,4": { class: "blankHex" }
+													}
+						);
+			});
+
+		</script>
+	</head>
+
+	<body>
+		<svg id="gameboard"></svg>
+	</body>
+
+</html>
