@@ -8,13 +8,23 @@
 
 		<script>
 			$(document).ready(function() {
+				renderGrid();
+			});
+
+			$(window).resize(function() {
+				$("#gameboard").empty();
+				renderGrid();
+			});
+
+			function renderGrid() {
 					// var s = Snap("#gameboard");
 					// var hd = new HexDrawer(s);
 					var hd = new HexDrawer("gameboard");
 					// hd.drawHex({x: 100, y:75}, 50, "basicHex");
 
 					// draw the Puerto Rico solitaire map
-					hd.drawHexGrid(5, 13, 100,
+					// hd.drawHexGrid(5, 13, -1,
+					hd.drawHexGrid(5, 13, -1,
 													{
 														"0,0": { class: "blankHex" }
 														, "0,2": { town: { name: "Mayaguez" } }
@@ -61,7 +71,7 @@
 														, "12,4": { class: "blankHex" }
 													}
 						);
-			});
+			}
 
 		</script>
 	</head>

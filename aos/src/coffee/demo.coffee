@@ -1,4 +1,5 @@
 class window.HexDrawer
+  SIDE_PADDING: 1
   constructor: (@snapCanvasId) ->
     console.log "now snap canvas is [" + @snapCanvasId + "]"
     @snapCanvas = Snap("#" + @snapCanvasId)
@@ -43,13 +44,14 @@ class window.HexDrawer
   sizeToFit: (rows, cols) ->
     console.log "size hexes to fit - dimensions are [" + @jqCanvas.width() + "] x [" + @jqCanvas.height() + "]"
     # base value
-    maxHorizSize = @jqCanvas.width() / cols
-    hUnit = maxHorizSize/2
+    hVal = (@jqCanvas.width() - (@SIDE_PADDING*2)) / ((.75 * (cols - 1)) + 1)
 
-    maxVertSize = @jqCanvas.height() / rows
-    vUnit = maxVertSize/2
-      
-    return Math.min(hUnit, vUnit)
+    vVal = (@jqCanvas.height() - (@SIDE_PADDING*2)) / ((.5 * (rows - 1)) + 1)
+    # vVal /= Math.sqrt(3)/2
+
+    # hexHeight = Math.sqrt(3)/2 * hexWidth
+
+    return Math.min(hVal, vVal) / 2
 
   drawHexGrid: (rows, cols, hexSize, data, defaultHexClass = "basicHex") ->
     # if -1 is passed in, we will attempt to fit
@@ -62,8 +64,8 @@ class window.HexDrawer
     hexHeight = Math.sqrt(3)/2 * hexWidth
 
     # this makes the top left hex butt up right against the border
-    xOffset = hexSize + 1
-    yOffset = hexHeight/2 + 1
+    xOffset = hexSize + @SIDE_PADDING
+    yOffset = hexHeight/2 + @SIDE_PADDING
 
     for r in [0..rows-1]
       for c in [0..cols-1]
