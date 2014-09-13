@@ -40,16 +40,16 @@ class window.HexDrawer
     hex.attr({ class: className })
     return hex
 
-  # doesn't really work - doesn't take into account the fact that hexes overlap! So there is wasted space.
   sizeToFit: (rows, cols) ->
     console.log "size hexes to fit - dimensions are [" + @jqCanvas.width() + "] x [" + @jqCanvas.height() + "]"
     # base value
     hVal = (@jqCanvas.width() - (@SIDE_PADDING*2)) / ((.75 * (cols - 1)) + 1)
 
-    vVal = (@jqCanvas.height() - (@SIDE_PADDING*2)) / ((.5 * (rows - 1)) + 1)
-    # vVal /= Math.sqrt(3)/2
-
-    # hexHeight = Math.sqrt(3)/2 * hexWidth
+    if (cols == 1)
+      vValTmp = (@jqCanvas.height() - (@SIDE_PADDING*2)) / ((.5 * (rows )))
+    else
+      vValTmp = (@jqCanvas.height() - (@SIDE_PADDING*2)) / ((.5 * (rows )) + .25)
+    vVal = vValTmp / (Math.sqrt(3))
 
     return Math.min(hVal, vVal) / 2
 

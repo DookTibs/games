@@ -62,10 +62,15 @@
     };
 
     HexDrawer.prototype.sizeToFit = function(rows, cols) {
-      var hVal, vVal;
+      var hVal, vVal, vValTmp;
       console.log("size hexes to fit - dimensions are [" + this.jqCanvas.width() + "] x [" + this.jqCanvas.height() + "]");
       hVal = (this.jqCanvas.width() - (this.SIDE_PADDING * 2)) / ((.75 * (cols - 1)) + 1);
-      vVal = (this.jqCanvas.height() - (this.SIDE_PADDING * 2)) / ((.5 * (rows - 1)) + 1);
+      if (cols === 1) {
+        vValTmp = (this.jqCanvas.height() - (this.SIDE_PADDING * 2)) / (.5 * rows);
+      } else {
+        vValTmp = (this.jqCanvas.height() - (this.SIDE_PADDING * 2)) / ((.5 * rows) + .25);
+      }
+      vVal = vValTmp / (Math.sqrt(3));
       return Math.min(hVal, vVal) / 2;
     };
 
