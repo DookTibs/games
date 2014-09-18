@@ -42,20 +42,11 @@ class window.HexDrawer
   # the hex as being made of 6 equilateral triangles with length size
   # this draws hexes with flat side on top
   drawHex: (center, size, attrs) ->
-    # console.log "let's draw a hex at #{center.x}, #{center.y}"
     pts = @generateHexPoints(center, size)
     path = @createPathFromPoints(pts)
     hex = @snapCanvas.path(path)
-    #hex.attr({ stroke: "red", fill: "green" })
 
     hex.attr(attrs)
-    ###
-    if className == "basic_hex"
-      hex.attr({ stroke: "black", fill: "green" })
-    else
-      hex.attr({ class: className })
-    ###
-
     return hex
 
   sizeToFit: (rows, cols) ->
@@ -69,38 +60,65 @@ class window.HexDrawer
       vValTmp = (@jqCanvas.height() - (@SIDE_PADDING*2)) / ((.5 * (rows )) + .25)
     vVal = vValTmp / (Math.sqrt(3))
 
-    return Math.min(hVal, vVal) / 2
+    @setHexSize(Math.min(hVal, vVal) / 2)
 
-  generateDownloadUrl: () ->
-    rawData = @snapCanvas.innerSvg
-    console.log "RAW DATA [" + rawData + "]"
-
-  drawHexGrid: (rows, cols, hexSize, data, defaultHexStyle = { fill: "#659B74", stroke: "black" }) ->
-    # if -1 is passed in, we will attempt to fit
-    if hexSize == -1
-      hexSize = @sizeToFit(rows, cols)
-
+  setHexSize: (@_hexSize) ->
     # for flat topped hexes
-    hexWidth = hexSize * 2
-    horizDistance = 3/4 * hexWidth
-    hexHeight = Math.sqrt(3)/2 * hexWidth
+    @hexWidth = @getHexSize() * 2
+    @horizDistance = 3/4 * @hexWidth
+    @hexHeight = Math.sqrt(3)/2 * @hexWidth
 
+  getHexSize: () ->
+    return @_hexSize
+
+  getHexPosition: (row, col) ->
     # this makes the top left hex butt up right against the border
-    xOffset = hexSize + @SIDE_PADDING
-    yOffset = hexHeight/2 + @SIDE_PADDING
+    xOffset = @getHexSize() + @SIDE_PADDING
+    yOffset = @hexHeight/2 + @SIDE_PADDING
 
+    centerX = xOffset + (col * @horizDistance)
+    centerY = yOffset + (row * @hexHeight) + (if col % 2 == 1 then @hexHeight/2 else 0)
+    return {x: centerX, y: centerY};
+
+  # 1 is the top of the flat pointed hex. 2 is upper right, etc.
+  generateHexSidePoints: (col, row, side) ->
+    if (side != -1 and (side < 1  or side > 6))
+      console.log "invalid side passed in"
+      return
+
+    center = @getHexPosition(row, col)
+    pts = @generateHexPoints(center, @getHexSize())
+    if side != -1
+      if side == 1
+        pts = [pts[4], pts[5]]
+      else if side == 2
+        pts = [pts[5], pts[0]]
+      else
+        pts = pts[side-3..side-2]
+    return pts
+
+  paintThickBorder: (col, row, thickness, side = -1) ->
+    pts = @generateHexSidePoints(col, row, side)
+    path = @createPathFromPoints(pts)
+    border = @snapCanvas.path(path)
+    border.attr({ stroke: "black", "stroke-width": thickness, fill: "none" })
+
+  paintDashedBorder: (col, row, side = -1) ->
+    pts = @generateHexSidePoints(col, row, side)
+    path = @createPathFromPoints(pts)
+
+    clearer = @snapCanvas.path(path)
+    clearer.attr({ stroke: "#659B74", "stroke-width": 2.3, fill: "none" })
+
+    border = @snapCanvas.path(path)
+    border.attr({ stroke: "black", "stroke-width": 5, fill: "none", "stroke-dasharray": "5,5" })
+
+  drawHexGrid: (rows, cols, data, defaultHexStyle = { fill: "#659B74", stroke: "black" }) ->
     for r in [0..rows-1]
       for c in [0..cols-1]
-        centerX = xOffset + (c * horizDistance)
-        centerY = yOffset + (r * hexHeight) + (if c % 2 == 1 then hexHeight/2 else 0)
-
-        ###
-        classForHex = defaultHexClass
-        lookupKey = "#{c},#{r}"
-        d = data[lookupKey]
-        if d != undefined and d.class != undefined
-          classForHex = d.class
-        ###
+        center = @getHexPosition(r, c)
+        centerX = center.x
+        centerY = center.y
 
         lookupKey = "#{c},#{r}"
         d = data[lookupKey]
@@ -109,17 +127,16 @@ class window.HexDrawer
         else
           styleForHex = defaultHexStyle
 
-        # hex = @drawHex({x:centerX, y:centerY}, hexSize, classForHex)
-        hex = @drawHex({x:centerX, y:centerY}, hexSize, styleForHex)
+        hex = @drawHex(center, @getHexSize(), styleForHex)
+
 
         if (d != undefined and d.town != undefined)
-          @drawCircle({x: centerX, y: centerY}, hexSize * .5, d.town.style)
-          @drawText({x: centerX, y: centerY + hexHeight/2 - (hexHeight*.05)}, d.town.name, d.town.labelStyle)
+          @drawCircle(center, @getHexSize() * .5, d.town.style)
+          @drawText({x: centerX, y: centerY + @hexHeight/2 - (@hexHeight*.05)}, d.town.name, d.town.labelStyle)
 
         if (d != undefined and d.city != undefined)
           hex.attr(d.city.style)
-          @drawText({x: centerX, y: centerY - hexHeight/2 + (hexHeight*.13)}, d.city.name, d.city.labelStyle)
-          boxWidth = hexWidth * .3
-          boxHeight = hexHeight * .3
-          @drawRectangle({x: centerX - boxWidth/2, y: centerY + hexHeight/2 - boxHeight * 1.1}, boxWidth, boxHeight, {stroke: "black", fill: "white"})
-    
+          @drawText({x: centerX, y: centerY - @hexHeight/2 + (@hexHeight*.13)}, d.city.name, d.city.labelStyle)
+          boxWidth = @hexWidth * .35
+          boxHeight = @hexHeight * .3
+          @drawRectangle({x: centerX - boxWidth/2, y: centerY + @hexHeight/2 - boxHeight * 1.2}, boxWidth, boxHeight, {stroke: "black", fill: "white"})
