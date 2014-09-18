@@ -1,25 +1,28 @@
 #gameboard {
-	width: 100%;
-	height: 100%;
+	/*width: 100%;
+	height: 100%;*/
+	width: 1410px;
+	height: 614px;
 	background-color: lightblue;
 }
 
-.basicHex {
+/*
+.basic_hex {
 	fill: green;
 	stroke: black;
 }
 
-.blankHex {
+.blank_hex {
 	fill: none;
 	stroke: none;
 }
 
-.lakeHex {
+.lake_hex {
 	fill: blue;
 	stroke: none;
 }
 
-.mountainHex {
+.mountain_hex {
 	fill: grey;
 	stroke: black;
 }
@@ -34,6 +37,7 @@
 	stroke: black;
 }
 
-.cityRed {
+.city_red {
 	fill: red;
 }
+*/

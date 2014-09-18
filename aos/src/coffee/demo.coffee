@@ -24,20 +24,38 @@ class window.HexDrawer
       rv += pt.x + " " + pt.y
     rv
 
-  drawCircle: (center, radius, className) ->
+  drawCircle: (center, radius, attrs) ->
     c = @snapCanvas.circle(center.x, center.y, radius)
-    c.attr({ class: className })
+    # c.attr({ class: className })
+    c.attr(attrs)
+
+  drawText: (midpoint, text, attrs) ->
+    t = @snapCanvas.text(midpoint.x, midpoint.y, text)
+    t.attr(attrs)
+
+  drawRectangle: (origin, width, height, attrs) ->
+    console.log "drawing rect #{origin.x}, #{origin.y}, #{width}, #{height}"
+    r = @snapCanvas.rect(origin.x, origin.y, width, height)
+    r.attr(attrs)
 
   # draws a hex at center.x, center.y. distance from center to vertex is size. size is also length of a side (think of
   # the hex as being made of 6 equilateral triangles with length size
   # this draws hexes with flat side on top
-  drawHex: (center, size, className) ->
+  drawHex: (center, size, attrs) ->
     # console.log "let's draw a hex at #{center.x}, #{center.y}"
     pts = @generateHexPoints(center, size)
     path = @createPathFromPoints(pts)
     hex = @snapCanvas.path(path)
     #hex.attr({ stroke: "red", fill: "green" })
-    hex.attr({ class: className })
+
+    hex.attr(attrs)
+    ###
+    if className == "basic_hex"
+      hex.attr({ stroke: "black", fill: "green" })
+    else
+      hex.attr({ class: className })
+    ###
+
     return hex
 
   sizeToFit: (rows, cols) ->
@@ -53,7 +71,11 @@ class window.HexDrawer
 
     return Math.min(hVal, vVal) / 2
 
-  drawHexGrid: (rows, cols, hexSize, data, defaultHexClass = "basicHex") ->
+  generateDownloadUrl: () ->
+    rawData = @snapCanvas.innerSvg
+    console.log "RAW DATA [" + rawData + "]"
+
+  drawHexGrid: (rows, cols, hexSize, data, defaultHexStyle = { fill: "#659B74", stroke: "black" }) ->
     # if -1 is passed in, we will attempt to fit
     if hexSize == -1
       hexSize = @sizeToFit(rows, cols)
@@ -72,17 +94,32 @@ class window.HexDrawer
         centerX = xOffset + (c * horizDistance)
         centerY = yOffset + (r * hexHeight) + (if c % 2 == 1 then hexHeight/2 else 0)
 
+        ###
         classForHex = defaultHexClass
         lookupKey = "#{c},#{r}"
         d = data[lookupKey]
         if d != undefined and d.class != undefined
           classForHex = d.class
+        ###
 
-        hex = @drawHex({x:centerX, y:centerY}, hexSize, classForHex)
+        lookupKey = "#{c},#{r}"
+        d = data[lookupKey]
+        if d != undefined and d.style != undefined
+          styleForHex = d.style
+        else
+          styleForHex = defaultHexStyle
+
+        # hex = @drawHex({x:centerX, y:centerY}, hexSize, classForHex)
+        hex = @drawHex({x:centerX, y:centerY}, hexSize, styleForHex)
 
         if (d != undefined and d.town != undefined)
-          @drawCircle({x: centerX, y: centerY}, hexSize * .5, "town")
+          @drawCircle({x: centerX, y: centerY}, hexSize * .5, d.town.style)
+          @drawText({x: centerX, y: centerY + hexHeight/2 - (hexHeight*.05)}, d.town.name, d.town.labelStyle)
 
         if (d != undefined and d.city != undefined)
-          hex.attr({ class: "city city#{d.city.color}" })
+          hex.attr(d.city.style)
+          @drawText({x: centerX, y: centerY - hexHeight/2 + (hexHeight*.13)}, d.city.name, d.city.labelStyle)
+          boxWidth = hexWidth * .3
+          boxHeight = hexHeight * .3
+          @drawRectangle({x: centerX - boxWidth/2, y: centerY + hexHeight/2 - boxHeight * 1.1}, boxWidth, boxHeight, {stroke: "black", fill: "white"})
     
