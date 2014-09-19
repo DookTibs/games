@@ -97,6 +97,77 @@ class window.HexDrawer
         pts = pts[side-3..side-2]
     return pts
 
+  getMidPoint: (a, b) ->
+    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
+
+  getCoordsOfCircleAngle: (center, radius, angle) ->
+    angleInRads = Snap.rad(angle)
+    x = center.x + radius * Math.cos(angleInRads)
+    y = center.y + radius * Math.sin(angleInRads)
+    return { x: x, y: y}
+
+  createArcPath: (center, radius, startAngle, endAngle) ->
+    startCoords = @getCoordsOfCircleAngle(center, radius, startAngle);
+    endCoords = @getCoordsOfCircleAngle(center, radius, endAngle);
+
+    xAxisRot = 0
+    largeArcFlag = 0
+    sweepFlag = 1
+
+    arcPath = "M" + startCoords.x + "," + startCoords.y   # move to one point of arc
+    arcPath += " A" + radius + "," + radius + " " + xAxisRot + " " + largeArcFlag + "," + sweepFlag   # arc
+    arcPath += " " + endCoords.x + "," + endCoords.y      # to this point
+    # arcPath += "z"                                        # do NOT close path
+
+    # return @createPathFromPoints([startCoords, endCoords])
+    # return @createPathFromPoints([center, {x: center.x + 300, y: center.y + 50}])
+    return arcPath
+
+  getSharpCurveAngles: (sideA, sideB) ->
+    # ensure that sideA is the lower number
+    if (sideB < sideA)
+      [sideB, sideA] = [sideA, sideB]
+
+    # could probably clean this up with a little math
+    if sideA == 1 and sideB == 2
+      return [60, 180]
+    else if sideA == 2 and sideB == 3
+      return [120, 240]
+    else if sideA == 3 and sideB == 4
+      return [180, 300]
+    else if sideA == 4 and sideB == 5
+      return [240, 0]
+    else if sideA == 5 and sideB == 6
+      return [300, 60]
+    else if sideA == 1 and sideB == 6
+      return [0, 120]
+
+  drawTrackNub: (col, row, fromSide, toSide) ->
+    rawDiff = Math.abs(fromSide - toSide)
+    sidesApart = rawDiff % 4
+    console.log fromSide + "->" + toSide + "..." + sidesApart + " side(s) apart (" + rawDiff + ")"
+
+    adjFrom = Math.min(fromSide, toSide)
+    adjTo = Math.max(fromSide, toSide)
+
+    fromPoints = @generateHexSidePoints(col, row, adjFrom)
+    toPoints = @generateHexSidePoints(col, row, adjTo)
+
+    if sidesApart == 3 # straight
+      pts = [ @getMidPoint(fromPoints[0], fromPoints[1]), @getMidPoint(toPoints[0], toPoints[1]) ]
+      path = @createPathFromPoints(pts)
+    else if sidesApart == 2 # gentle curve
+    else if sidesApart == 1 # sharp curve
+      originPoint = if rawDiff == 1 then fromPoints[1] else toPoints[1]
+      angles = @getSharpCurveAngles(adjFrom, adjTo)
+      path = @createArcPath(originPoint, @getHexSize() / 2, angles[0], angles[1])
+
+    if path
+      track = @snapCanvas.path(path)
+      track.attr({ stroke: "black", "stroke-width": 12, fill: "none", "stroke-linecap": "butt" })
+    else
+      console.log "invalid sides passed to drawTrackNub"
+
   paintThickBorder: (col, row, thickness, side = -1) ->
     pts = @generateHexSidePoints(col, row, side)
     path = @createPathFromPoints(pts)
@@ -131,7 +202,7 @@ class window.HexDrawer
 
 
         if (d != undefined and d.town != undefined)
-          @drawCircle(center, @getHexSize() * .5, d.town.style)
+          @drawCircle(center, @getHexSize() * .6, d.town.style)
           @drawText({x: centerX, y: centerY + @hexHeight/2 - (@hexHeight*.05)}, d.town.name, d.town.labelStyle)
 
         if (d != undefined and d.city != undefined)
