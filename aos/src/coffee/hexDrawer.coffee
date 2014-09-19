@@ -117,6 +117,10 @@ class window.HexDrawer
     largeArcFlag = 0
     sweepFlag = 1
 
+    if (endAngle < startAngle)
+      console.log "reversing sweep flag..."
+      sweepFlag = 0
+
     arcPath = "M" + startCoords.x + "," + startCoords.y   # move to one point of arc
     arcPath += " A" + radius + "," + radius + " " + xAxisRot + " " + largeArcFlag + "," + sweepFlag   # arc
     arcPath += " " + endCoords.x + "," + endCoords.y      # to this point
@@ -161,28 +165,19 @@ class window.HexDrawer
     return { row: nRow, col: nCol }
 
   testAllTrack: () ->
-    ###
-    [1, 0, 6, 3]
-    [2, 1, 6, 4]
-    [2, 2, 1, 5]
-    [1, 2, 2, 3]
-    [2, 3, 6, 1]
-    [2, 2, 4, 2]
-    [3, 1, 5, 1]
-    [3, 0, 4, 3]
-    ###
-    rev = true
-    xdata = [
-      [2, 2, 3, 4, rev]
-      [2, 3, 1, 2, rev]
-      [3, 2, 5, 6, rev]
-
-      [3, 1, 2, 3, rev]
-      [4, 1, 4, 5, rev]
-      [4, 2, 1, 6, rev]
+    rev = false
+    testData = [
+      [1, 0, 6, 3]
+      [2, 1, 6, 4]
+      [2, 2, 1, 5]
+      [1, 2, 2, 3]
+      [2, 3, 6, 1]
+      [2, 2, 4, 2]
+      [3, 1, 5, 1]
+      [3, 0, 4, 3]
     ]
 
-    data = [
+    gentleData = [
       [2, 1, 2, 4, rev]
       [3, 0, 3, 5, rev]
       [4, 1, 4, 6, rev]
@@ -191,7 +186,17 @@ class window.HexDrawer
       [2, 2, 1, 3, rev]
     ]
 
-    for d in data
+    sharpData = [
+      [2, 1, 3, 4, rev]
+      [3, 1, 5, 6, rev]
+      [2, 2, 1, 2, rev]
+
+      [4, 1, 2, 3, rev]
+      [5, 0, 4, 5, rev]
+      [5, 1, 1, 6, rev]
+    ]
+
+    for d in testData
       if (d[4])
         @drawTrackNub(d[0], d[1], d[3], d[2])
       else
@@ -199,34 +204,45 @@ class window.HexDrawer
     
       
   getGentleCurveAngles: (sideA, sideB) ->
-    # ensure that sideA is the lower number
-    # [sideA, sideB] = [Math.min(sideA,sideB), Math.max(sideA,sideB)]
+    sidesApart = Math.abs(sideA - sideB)
+    # console.log "get gentle curves for [" + sideA + "]->[" + sideB + "] (" + sidesApart + " sides apart)"
 
-    if sideB - sideA == 2
-      base = (sideA * 60) + 60
-    else
-      base = (sideA - 1) * 60
+    if sidesApart == 2
+      if (sideA < sideB)
+        base = (sideA * 60) + 120
+        rv = [base, base-60]
+      else
+        base = (sideB * 60) + 120
+        rv = [base-60, base]
+    else if sidesApart == 4
+      if (sideA < sideB)
+        base = (sideA - 1) * 60
+        rv = [base, base+60]
+      else
+        base = (sideB - 1) * 60
+        rv = [base+60, base]
 
-    return [base, base + 60]
+    return rv
 
   getSharpCurveAngles: (sideA, sideB) ->
-    # ensure that sideA is the lower number
-    if (sideB < sideA)
-      [sideB, sideA] = [sideA, sideB]
+    sidesApart = Math.abs(sideA - sideB)
+    # console.log "get sharp curves for [" + sideA + "]->[" + sideB + "] (" + sidesApart + " sides apart)"
 
-    # could probably clean this up with a little math
-    if sideA == 1 and sideB == 2
-      return [60, 180]
-    else if sideA == 2 and sideB == 3
-      return [120, 240]
-    else if sideA == 3 and sideB == 4
-      return [180, 300]
-    else if sideA == 4 and sideB == 5
-      return [240, 0]
-    else if sideA == 5 and sideB == 6
-      return [300, 60]
-    else if sideA == 1 and sideB == 6
-      return [0, 120]
+    if sidesApart == 1
+      if (sideA < sideB)
+        base = sideA * 60
+        rv = [base+120, base]
+      else
+        base = sideB * 60
+        rv = [base, base+120]
+    else if sidesApart == 5
+      if (sideA < sideB)
+        rv = [0, 120]
+      else
+        rv = [120, 0]
+
+    # console.log "going from [" + rv[0] + "] -> [" + rv[1] + "]"
+    return rv
 
   # given two sides that are 2 apart, return the side between them
   getBetweenSide: (a, b) ->
