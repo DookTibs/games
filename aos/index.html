@@ -4,7 +4,7 @@
 		<link rel="stylesheet" type="text/css" href="src/css/demo.css">
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
 		<script src="lib/Snap.svg-0.3.0/dist/snap.svg-min.js"></script>
-		<script src="src/js/hexDrawer.js"></script>
+		<script src="src/js/aos.js"></script>
 
 		<script>
 			$(document).ready(function() {
@@ -18,9 +18,9 @@
 
 			function renderGrid() {
 					// var s = Snap("#gameboard");
-					// var hd = new HexDrawer(s);
-					var hd = new HexDrawer("gameboard");
-					// hd.drawHex({x: 100, y:75}, 50, "basic_hex");
+					// var hexGb = new HexDrawer(s);
+					var hexGb = new HexGameBoard("gameboard");
+					// hexGb.drawHex({x: 100, y:75}, 50, "basic_hex");
 
 					// var dpi = 300;
 					var dpi = 90; // inkscape
@@ -33,9 +33,9 @@
 					var townStyle = { stroke: "black", fill: "white" }
 					var genericLabelStyle = { fill: "black", "text-anchor": "middle" }
 					// draw the Puerto Rico solitaire map
-					// hd.drawHexGrid(5, 13, -1,
-					hd.setHexSize(aosBezierSize);
-					hd.drawHexGrid(5, 13,
+					// hexGb.drawHexGrid(5, 13, -1,
+					hexGb.setHexSize(aosBezierSize);
+					hexGb.drawHexGrid(5, 13,
 													{
 													"0,0": { class: "blank_hex", style: blankStyle }
 													, "0,2": { town: { style: townStyle, labelStyle: genericLabelStyle, name: "Mayaguez" } }
@@ -83,35 +83,35 @@
 													}
 						);
 
-						hd.paintThickBorder(9, 0, 5);
+						hexGb.paintThickBorder(9, 0, 5);
 
-						hd.paintDashedBorder(11, 0);
+						hexGb.paintDashedBorder(11, 0);
 
 						/*
-						hd.paintThickBorder(6, 2, 5, 1);
-						hd.paintThickBorder(7, 1, 5, 2);
-						hd.paintThickBorder(8, 2, 5, 3);
-						hd.paintThickBorder(10, 2, 5, 5);
-						hd.paintThickBorder(12, 1, 5, 6);
+						hexGb.paintThickBorder(6, 2, 5, 1);
+						hexGb.paintThickBorder(7, 1, 5, 2);
+						hexGb.paintThickBorder(8, 2, 5, 3);
+						hexGb.paintThickBorder(10, 2, 5, 5);
+						hexGb.paintThickBorder(12, 1, 5, 6);
 						*/
-						hd.paintThickBorder(9, 3, 5, 5);
+						hexGb.paintThickBorder(9, 3, 5, 5);
 
 						/*
-						hd.drawTrackNub(4, 1, 1, 4);
+						hexGb.drawTrackNub(4, 1, 1, 4);
 
 						// test out sharp angles
-						hd.drawTrackNub(4, 2, 1, 2);
-						hd.drawTrackNub(5, 1, 5, 4);
+						hexGb.drawTrackNub(4, 2, 1, 2);
+						hexGb.drawTrackNub(5, 1, 5, 4);
 
-						hd.drawTrackNub(3, 2, 5, 6);
-						hd.drawTrackNub(2, 2, 2, 3);
+						hexGb.drawTrackNub(3, 2, 5, 6);
+						hexGb.drawTrackNub(2, 2, 2, 3);
 
-						hd.drawTrackNub(8, 1, 4, 1);
-							hd.drawTrackNub(8, 2, 2, 6);
-						hd.drawTrackNub(6, 2, 3, 4);
-						hd.drawTrackNub(6, 3, 1, 6);
+						hexGb.drawTrackNub(8, 1, 4, 1);
+							hexGb.drawTrackNub(8, 2, 2, 6);
+						hexGb.drawTrackNub(6, 2, 3, 4);
+						hexGb.drawTrackNub(6, 3, 1, 6);
 						*/
-						hd.testAllTrack();
+						hexGb.testAllTrack();
 			}
 
 		</script>

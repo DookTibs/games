@@ -1,62 +1,9 @@
-class window.HexDrawer
+class window.HexGameBoard
   SIDE_PADDING: 1
   constructor: (@snapCanvasId) ->
     console.log "now snap canvas is [" + @snapCanvasId + "]"
     @snapCanvas = Snap("#" + @snapCanvasId)
     @jqCanvas = $("#" + @snapCanvasId)
-
-  generateHexPoints: (center, size) ->
-    rv = []
-    for i in [0..5]
-      angle = 2 * Math.PI/6 * i
-      loopX = center.x + size*Math.cos(angle)
-      loopY = center.y + size*Math.sin(angle)
-      rv.push({x: loopX, y: loopY})
-    rv
-
-  createPathFromPoints: (pts, closePath = true) ->
-    if closePath
-      pts.push(pts[0])
-      
-    rv = ""
-    for pt, i in pts
-      rv += if (i == 0) then "M" else "L" 
-      rv += pt.x + " " + pt.y
-    rv
-
-  drawCircle: (center, radius, attrs) ->
-    c = @snapCanvas.circle(center.x, center.y, radius)
-    # c.attr({ class: className })
-    c.attr(attrs)
-    return c
-
-  drawText: (midpoint, text, attrs) ->
-    t = @snapCanvas.text(midpoint.x, midpoint.y, text)
-    t.attr(attrs)
-    return t
-
-  drawRectangle: (origin, width, height, attrs) ->
-    console.log "drawing rect #{origin.x}, #{origin.y}, #{width}, #{height}"
-    r = @snapCanvas.rect(origin.x, origin.y, width, height)
-    r.attr(attrs)
-    return r
-
-  drawCenteredRectangle: (origin, width, height, attrs) ->
-    console.log "drawing centered rect #{origin.x}, #{origin.y}, #{width}, #{height}"
-    r = @snapCanvas.rect(origin.x - width/2, origin.y - height/2, width, height)
-    r.attr(attrs)
-    return r
-
-  # draws a hex at center.x, center.y. distance from center to vertex is size. size is also length of a side (think of
-  # the hex as being made of 6 equilateral triangles with length size
-  # this draws hexes with flat side on top
-  drawHex: (center, size, attrs) ->
-    pts = @generateHexPoints(center, size)
-    path = @createPathFromPoints(pts)
-    hex = @snapCanvas.path(path)
-
-    hex.attr(attrs)
-    return hex
 
   sizeToFit: (rows, cols) ->
     console.log "size hexes to fit - dimensions are [" + @jqCanvas.width() + "] x [" + @jqCanvas.height() + "]"
@@ -96,7 +43,7 @@ class window.HexDrawer
       return
 
     center = @getHexPosition(col, row)
-    pts = @generateHexPoints(center, @getHexSize())
+    pts = SvgUtils.generateHexPoints(center, @getHexSize())
     if side != -1
       if side == 1
         pts = [pts[4], pts[5]]
@@ -106,35 +53,6 @@ class window.HexDrawer
         pts = pts[side-3..side-2]
     return pts
 
-  getMidPoint: (a, b) ->
-    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
-
-  getCoordsOfCircleAngle: (center, radius, angle) ->
-    angleInRads = Snap.rad(angle)
-    x = center.x + radius * Math.cos(angleInRads)
-    y = center.y + radius * Math.sin(angleInRads)
-    return { x: x, y: y}
-
-  createArcPath: (center, radius, startAngle, endAngle) ->
-    startCoords = @getCoordsOfCircleAngle(center, radius, startAngle);
-    endCoords = @getCoordsOfCircleAngle(center, radius, endAngle);
-
-    xAxisRot = 0
-    largeArcFlag = 0
-    sweepFlag = 1
-
-    if (endAngle < startAngle)
-      # console.log "reversing sweep flag..."
-      sweepFlag = 0
-
-    arcPath = "M" + startCoords.x + "," + startCoords.y   # move to one point of arc
-    arcPath += " A" + radius + "," + radius + " " + xAxisRot + " " + largeArcFlag + "," + sweepFlag   # arc
-    arcPath += " " + endCoords.x + "," + endCoords.y      # to this point
-    # arcPath += "z"                                        # do NOT close path
-
-    # return @createPathFromPoints([startCoords, endCoords])
-    # return @createPathFromPoints([center, {x: center.x + 300, y: center.y + 50}])
-    return arcPath
 
   # given a column and row, and a direction to move in, give the column and row of that neighbor
   getNeighborColRow: (col, row, dir) ->
@@ -271,18 +189,18 @@ class window.HexDrawer
     toPoints = @generateHexSidePoints(col, row, toSide)
 
     if sidesApart == 3 # straight
-      pts = [ @getMidPoint(fromPoints[0], fromPoints[1]), @getMidPoint(toPoints[0], toPoints[1]) ]
-      path = @createPathFromPoints(pts, false)
+      pts = [ SvgUtils.getMidPoint(fromPoints[0], fromPoints[1]), SvgUtils.getMidPoint(toPoints[0], toPoints[1]) ]
+      path = SvgUtils.createPathFromPoints(pts, false)
     else if sidesApart == 2 or sidesApart == 4
       betweenSide = @getBetweenSide(fromSide, toSide)
       n = @getNeighborColRow(col, row, betweenSide)
       neighborCenter = @getHexPosition(n.col, n.row)
       angles = @getGentleCurveAngles(fromSide, toSide)
-      path = @createArcPath(neighborCenter, @getHexSize() * 1.5, angles[0], angles[1])
+      path = SvgUtils.createArcPath(neighborCenter, @getHexSize() * 1.5, angles[0], angles[1])
     else if sidesApart == 1 or sidesApart == 5 # sharp curve
       originPoint = @getSharedPoint(fromPoints, toPoints)
       angles = @getSharpCurveAngles(fromSide, toSide)
-      path = @createArcPath(originPoint, @getHexSize() / 2, angles[0], angles[1])
+      path = SvgUtils.createArcPath(originPoint, @getHexSize() / 2, angles[0], angles[1])
     return path
 
   drawTrackNub: (col, row, fromSide, toSide) ->
@@ -297,13 +215,13 @@ class window.HexDrawer
 
   paintThickBorder: (col, row, thickness, side = -1) ->
     pts = @generateHexSidePoints(col, row, side)
-    path = @createPathFromPoints(pts)
+    path = SvgUtils.createPathFromPoints(pts)
     border = @snapCanvas.path(path)
     border.attr({ stroke: "black", "stroke-width": thickness, fill: "none" })
 
   paintDashedBorder: (col, row, side = -1) ->
     pts = @generateHexSidePoints(col, row, side)
-    path = @createPathFromPoints(pts)
+    path = SvgUtils.createPathFromPoints(pts)
 
     clearer = @snapCanvas.path(path)
     clearer.attr({ stroke: "#659B74", "stroke-width": 2.3, fill: "none" })
@@ -312,6 +230,7 @@ class window.HexDrawer
     border.attr({ stroke: "black", "stroke-width": 5, fill: "none", "stroke-dasharray": "5,5" })
 
   drawHexGrid: (rows, cols, data, defaultHexStyle = { fill: "#659B74", stroke: "black" }) ->
+    console.log "draing"
     for r in [0..rows-1]
       for c in [0..cols-1]
         center = @getHexPosition(c, r)
@@ -325,25 +244,25 @@ class window.HexDrawer
         else
           styleForHex = defaultHexStyle
 
-        hex = @drawHex(center, @getHexSize(), styleForHex)
+        hex = SvgUtils.drawHex(@snapCanvas, center, @getHexSize(), styleForHex)
 
         if (d != undefined and d.town != undefined)
-          @drawCircle(center, @getHexSize() * .6, d.town.style)
-          @drawText({x: centerX, y: centerY + @hexHeight/2 - (@hexHeight*.05)}, d.town.name, d.town.labelStyle)
+          SvgUtils.drawCircle(@snapCanvas, center, @getHexSize() * .6, d.town.style)
+          SvgUtils.drawText(@snapCanvas, {x: centerX, y: centerY + @hexHeight/2 - (@hexHeight*.05)}, d.town.name, d.town.labelStyle)
 
         if (d != undefined and d.city != undefined)
           hex.attr(d.city.style)
-          @drawText({x: centerX, y: centerY - @hexHeight/2 + (@hexHeight*.13)}, d.city.name, d.city.labelStyle)
+          SvgUtils.drawText(@snapCanvas, {x: centerX, y: centerY - @hexHeight/2 + (@hexHeight*.13)}, d.city.name, d.city.labelStyle)
           boxWidth = @hexWidth * .35
           boxHeight = @hexHeight * .3
-          @drawRectangle({x: centerX - boxWidth/2, y: centerY + @hexHeight/2 - boxHeight * 1.2}, boxWidth, boxHeight, {stroke: "black", fill: "white"})
+          SvgUtils.drawRectangle(@snapCanvas, {x: centerX - boxWidth/2, y: centerY + @hexHeight/2 - boxHeight * 1.2}, boxWidth, boxHeight, {stroke: "black", fill: "white"})
 
     fakeCenter = @getHexPosition(1, 0)
-    fakeCube = @drawCenteredRectangle({x: fakeCenter.x, y: fakeCenter.y }, 40, 40, {stroke: "black", fill: "purple"})
+    fakeCube = SvgUtils.drawCenteredRectangle(@snapCanvas, {x: fakeCenter.x, y: fakeCenter.y }, 40, 40, {stroke: "black", fill: "purple"})
     # fakeCube = @drawCenteredRectangle({x: 0, y: 0 }, 40, 40, {stroke: "black", fill: "purple"})
     foo = (() =>
       console.log "animate the cube!"
-      @animateAlongPath(fakeCube, [
+      SvgUtils.animateAlongPath(@snapCanvas, fakeCube, [
                                   @getPathForSideToSide(1, 0, 6, 3)
                                   @getPathForSideToSide(2, 1, 6, 4)
                                   @getPathForSideToSide(2, 2, 1, 5)
@@ -359,28 +278,3 @@ class window.HexDrawer
     # setTimeout(foo, 500)
 
 
-  mergePaths: (paths) ->
-    rv = ""
-    for p in paths
-      rv += p
-    return rv
-
-  animateAlongPath: (item, paths) ->
-    mergedPaths = @mergePaths(paths)
-    console.log "merged: [" + mergedPaths + "]"
-
-    comboPath = @snapCanvas.path(mergedPaths)
-    comboPath.attr({ fill: "none", stroke: "none" })
-
-    easeFxn = mina.easeinout
-    bbox = item.getBBox()
-    initialPos = { x: bbox.x, y: bbox.y }
-    Snap.animate(0, comboPath.getTotalLength(), ( (value) =>
-      console.log "value is [" + value + "]"
-      movePoint = comboPath.getPointAtLength(value)
-      # item.transform("t" + parseInt(movePoint.x) + "," + parseInt(movePoint.y))
-      item.transform("t" + parseInt(movePoint.x - initialPos.x - bbox.width/2) + "," + parseInt(movePoint.y - initialPos.y - bbox.height/2))
-      # item.x = movePoint.x
-    ), 2000, easeFxn, ( () =>
-      console.log "finished animation"
-    ))
