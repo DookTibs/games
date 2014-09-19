@@ -71,7 +71,7 @@ class window.HexDrawer
   getHexSize: () ->
     return @_hexSize
 
-  getHexPosition: (row, col) ->
+  getHexPosition: (col, row) ->
     # this makes the top left hex butt up right against the border
     xOffset = @getHexSize() + @SIDE_PADDING
     yOffset = @hexHeight/2 + @SIDE_PADDING
@@ -86,7 +86,7 @@ class window.HexDrawer
       console.log "invalid side passed in"
       return
 
-    center = @getHexPosition(row, col)
+    center = @getHexPosition(col, row)
     pts = @generateHexPoints(center, @getHexSize())
     if side != -1
       if side == 1
@@ -123,6 +123,67 @@ class window.HexDrawer
     # return @createPathFromPoints([center, {x: center.x + 300, y: center.y + 50}])
     return arcPath
 
+  # given a column and row, and a direction to move in, give the column and row of that neighbor
+  getNeighborColRow: (col, row, dir) ->
+    nCol = col
+    nRow = row
+    if (dir == 1) # up
+      nRow--
+    else if (dir == 4) # down
+      nRow++
+    else
+      if (col % 2 == 1)
+        if (dir == 2)
+          nCol++
+        else if (dir == 3)
+          nCol++
+          nRow++
+        else if (dir == 5)
+          nCol--
+          nRow++
+        else if (dir == 6)
+          nCol--
+      else
+        if (dir == 2)
+          nRow--
+          nCol++
+        else if (dir == 3)
+          nCol++
+        else if (dir == 5)
+          nCol--
+        else if (dir == 6)
+          nCol--
+          nRow--
+
+    return { row: nRow, col: nCol }
+
+  testAllTrack: () ->
+    data = [
+      [1, 0, 6, 3]
+      [2, 1, 6, 4]
+      [2, 2, 1, 5]
+      [1, 2, 2, 3]
+      [2, 3, 6, 1]
+      [2, 2, 4, 2]
+      [3, 1, 5, 1]
+      [3, 0, 4, 3]
+    ]
+
+    for d in data
+      @drawTrackNub(d[0], d[1], d[2], d[3])
+    
+      
+  getGentleCurveAngles: (sideA, sideB) ->
+    # ensure that sideA is the lower number
+    [sideA, sideB] = [Math.min(sideA,sideB), Math.max(sideA,sideB)]
+
+    if sideB - sideA == 2
+      base = (sideA * 60) + 60
+    else
+      base = (sideA - 1) * 60
+
+    return [base, base + 60]
+
   getSharpCurveAngles: (sideA, sideB) ->
     # ensure that sideA is the lower number
     if (sideB < sideA)
@@ -142,10 +203,17 @@ class window.HexDrawer
     else if sideA == 1 and sideB == 6
       return [0, 120]
 
+  # given two sides that are 2 apart, return the side between them
+  getBetweenSide: (a, b) ->
+    [a, b] = [Math.min(a,b), Math.max(a,b)]
+    if b - a == 2
+      return b - 1
+    else if b - a == 4
+      return (b % 6) + 1
+
   drawTrackNub: (col, row, fromSide, toSide) ->
-    rawDiff = Math.abs(fromSide - toSide)
-    sidesApart = rawDiff % 4
-    console.log fromSide + "->" + toSide + "..." + sidesApart + " side(s) apart (" + rawDiff + ")"
+    sidesApart = Math.abs(fromSide - toSide)
+    console.log fromSide + "->" + toSide + "..." + sidesApart + " side(s) apart"
 
     adjFrom = Math.min(fromSide, toSide)
     adjTo = Math.max(fromSide, toSide)
@@ -156,12 +224,21 @@ class window.HexDrawer
     if sidesApart == 3 # straight
       pts = [ @getMidPoint(fromPoints[0], fromPoints[1]), @getMidPoint(toPoints[0], toPoints[1]) ]
       path = @createPathFromPoints(pts)
-    else if sidesApart == 0 # gentle curve
+    else if sidesApart == 2 or sidesApart == 4
       console.log "GENTLE CURVE"
-      pts = [ @getMidPoint(fromPoints[0], fromPoints[1]), @getMidPoint(toPoints[0], toPoints[1]) ]
-      path = @createPathFromPoints(pts)
-    else if sidesApart == 1 # sharp curve
-      originPoint = if rawDiff == 1 then fromPoints[1] else toPoints[1]
+      # pts = [ @getMidPoint(fromPoints[0], fromPoints[1]), @getMidPoint(toPoints[0], toPoints[1]) ]
+      # path = @createPathFromPoints(pts)
+
+      betweenSide = @getBetweenSide(fromSide, toSide)
+      n = @getNeighborColRow(col, row, betweenSide)
+      neighborCenter = @getHexPosition(n.col, n.row)
+      angles = @getGentleCurveAngles(adjFrom, adjTo)
+      path = @createArcPath(neighborCenter, @getHexSize() * 1.5, angles[0], angles[1])
+
+      # myCenter = @getHexPosition(col, row)
+      # path = @createPathFromPoints([neighborCenter, myCenter])
+    else if sidesApart == 1 or sidesApart == 5 # sharp curve
+      originPoint = if sidesApart == 1 then fromPoints[1] else toPoints[1]
       angles = @getSharpCurveAngles(adjFrom, adjTo)
       path = @createArcPath(originPoint, @getHexSize() / 2, angles[0], angles[1])
 
@@ -190,7 +267,7 @@ class window.HexDrawer
   drawHexGrid: (rows, cols, data, defaultHexStyle = { fill: "#659B74", stroke: "black" }) ->
     for r in [0..rows-1]
       for c in [0..cols-1]
-        center = @getHexPosition(r, c)
+        center = @getHexPosition(c, r)
         centerX = center.x
         centerY = center.y
 
