@@ -41,6 +41,12 @@ class window.HexDrawer
     r.attr(attrs)
     return r
 
+  drawCenteredRectangle: (origin, width, height, attrs) ->
+    console.log "drawing centered rect #{origin.x}, #{origin.y}, #{width}, #{height}"
+    r = @snapCanvas.rect(origin.x - width/2, origin.y - height/2, width, height)
+    r.attr(attrs)
+    return r
+
   # draws a hex at center.x, center.y. distance from center to vertex is size. size is also length of a side (think of
   # the hex as being made of 6 equilateral triangles with length size
   # this draws hexes with flat side on top
@@ -118,7 +124,7 @@ class window.HexDrawer
     sweepFlag = 1
 
     if (endAngle < startAngle)
-      console.log "reversing sweep flag..."
+      # console.log "reversing sweep flag..."
       sweepFlag = 0
 
     arcPath = "M" + startCoords.x + "," + startCoords.y   # move to one point of arc
@@ -283,7 +289,7 @@ class window.HexDrawer
     path = @getPathForSideToSide(col, row, fromSide, toSide)
 
     if path
-      console.log "path for [#{col}],[#{row}] is [" + path + "]..."
+      # console.log "path for [#{col}],[#{row}] is [" + path + "]..."
       track = @snapCanvas.path(path)
       track.attr({ stroke: "black", "stroke-width": 12, fill: "none", "stroke-linecap": "butt" })
     else
@@ -332,13 +338,49 @@ class window.HexDrawer
           boxHeight = @hexHeight * .3
           @drawRectangle({x: centerX - boxWidth/2, y: centerY + @hexHeight/2 - boxHeight * 1.2}, boxWidth, boxHeight, {stroke: "black", fill: "white"})
 
-        if (r == 0 and c == 1)
-          fakeCube = @drawRectangle({x: centerX-20, y: centerY-20 }, 40, 40, {stroke: "black", fill: "purple"})
-          fakeCube.click(() =>
-            console.log "clicked the cube!"
-            pathOne = @getPathForSideToSide(2, 1, 4, 6)
-            pathTwo = @getPathForSideToSide(1, 0, 3, 6)
-            console.log "paths:"
-            console.log pathOne
-            console.log pathTwo
-          )
+    fakeCenter = @getHexPosition(1, 0)
+    fakeCube = @drawCenteredRectangle({x: fakeCenter.x, y: fakeCenter.y }, 40, 40, {stroke: "black", fill: "purple"})
+    # fakeCube = @drawCenteredRectangle({x: 0, y: 0 }, 40, 40, {stroke: "black", fill: "purple"})
+    foo = (() =>
+      console.log "animate the cube!"
+      @animateAlongPath(fakeCube, [
+                                  @getPathForSideToSide(1, 0, 6, 3)
+                                  @getPathForSideToSide(2, 1, 6, 4)
+                                  @getPathForSideToSide(2, 2, 1, 5)
+                                  @getPathForSideToSide(1, 2, 2, 3)
+                                  @getPathForSideToSide(2, 3, 6, 1)
+                                  @getPathForSideToSide(2, 2, 4, 2)
+                                  @getPathForSideToSide(3, 1, 5, 1)
+                                  @getPathForSideToSide(3, 0, 4, 3)
+                                  ])
+    )
+    # foo()
+    fakeCube.click(foo)
+    # setTimeout(foo, 500)
+
+
+  mergePaths: (paths) ->
+    rv = ""
+    for p in paths
+      rv += p
+    return rv
+
+  animateAlongPath: (item, paths) ->
+    mergedPaths = @mergePaths(paths)
+    console.log "merged: [" + mergedPaths + "]"
+
+    comboPath = @snapCanvas.path(mergedPaths)
+    comboPath.attr({ fill: "none", stroke: "none" })
+
+    easeFxn = mina.easeinout
+    bbox = item.getBBox()
+    initialPos = { x: bbox.x, y: bbox.y }
+    Snap.animate(0, comboPath.getTotalLength(), ( (value) =>
+      console.log "value is [" + value + "]"
+      movePoint = comboPath.getPointAtLength(value)
+      # item.transform("t" + parseInt(movePoint.x) + "," + parseInt(movePoint.y))
+      item.transform("t" + parseInt(movePoint.x - initialPos.x - bbox.width/2) + "," + parseInt(movePoint.y - initialPos.y - bbox.height/2))
+      # item.x = movePoint.x
+    ), 2000, easeFxn, ( () =>
+      console.log "finished animation"
+    ))
