@@ -28,15 +28,18 @@ class window.HexDrawer
     c = @snapCanvas.circle(center.x, center.y, radius)
     # c.attr({ class: className })
     c.attr(attrs)
+    return c
 
   drawText: (midpoint, text, attrs) ->
     t = @snapCanvas.text(midpoint.x, midpoint.y, text)
     t.attr(attrs)
+    return t
 
   drawRectangle: (origin, width, height, attrs) ->
     console.log "drawing rect #{origin.x}, #{origin.y}, #{width}, #{height}"
     r = @snapCanvas.rect(origin.x, origin.y, width, height)
     r.attr(attrs)
+    return r
 
   # draws a hex at center.x, center.y. distance from center to vertex is size. size is also length of a side (think of
   # the hex as being made of 6 equilateral triangles with length size
@@ -158,24 +161,46 @@ class window.HexDrawer
     return { row: nRow, col: nCol }
 
   testAllTrack: () ->
+    ###
+    [1, 0, 6, 3]
+    [2, 1, 6, 4]
+    [2, 2, 1, 5]
+    [1, 2, 2, 3]
+    [2, 3, 6, 1]
+    [2, 2, 4, 2]
+    [3, 1, 5, 1]
+    [3, 0, 4, 3]
+    ###
+    rev = true
+    xdata = [
+      [2, 2, 3, 4, rev]
+      [2, 3, 1, 2, rev]
+      [3, 2, 5, 6, rev]
+
+      [3, 1, 2, 3, rev]
+      [4, 1, 4, 5, rev]
+      [4, 2, 1, 6, rev]
+    ]
+
     data = [
-      [1, 0, 6, 3]
-      [2, 1, 6, 4]
-      [2, 2, 1, 5]
-      [1, 2, 2, 3]
-      [2, 3, 6, 1]
-      [2, 2, 4, 2]
-      [3, 1, 5, 1]
-      [3, 0, 4, 3]
+      [2, 1, 2, 4, rev]
+      [3, 0, 3, 5, rev]
+      [4, 1, 4, 6, rev]
+      [4, 2, 1, 5, rev]
+      [3, 2, 2, 6, rev]
+      [2, 2, 1, 3, rev]
     ]
 
     for d in data
-      @drawTrackNub(d[0], d[1], d[2], d[3])
+      if (d[4])
+        @drawTrackNub(d[0], d[1], d[3], d[2])
+      else
+        @drawTrackNub(d[0], d[1], d[2], d[3])
     
       
   getGentleCurveAngles: (sideA, sideB) ->
     # ensure that sideA is the lower number
-    [sideA, sideB] = [Math.min(sideA,sideB), Math.max(sideA,sideB)]
+    # [sideA, sideB] = [Math.min(sideA,sideB), Math.max(sideA,sideB)]
 
     if sideB - sideA == 2
       base = (sideA * 60) + 60
@@ -211,38 +236,38 @@ class window.HexDrawer
     else if b - a == 4
       return (b % 6) + 1
 
-  drawTrackNub: (col, row, fromSide, toSide) ->
+  getSharedPoint: (sideAPoints, sideBPoints) ->
+    if (sideAPoints[0].x == sideBPoints[1].x and sideAPoints[0].y == sideBPoints[1].y)
+      return sideAPoints[0]
+    else
+      return sideAPoints[1]
+
+  getPathForSideToSide: (col, row, fromSide, toSide) ->
     sidesApart = Math.abs(fromSide - toSide)
-    console.log fromSide + "->" + toSide + "..." + sidesApart + " side(s) apart"
 
-    adjFrom = Math.min(fromSide, toSide)
-    adjTo = Math.max(fromSide, toSide)
-
-    fromPoints = @generateHexSidePoints(col, row, adjFrom)
-    toPoints = @generateHexSidePoints(col, row, adjTo)
+    fromPoints = @generateHexSidePoints(col, row, fromSide)
+    toPoints = @generateHexSidePoints(col, row, toSide)
 
     if sidesApart == 3 # straight
       pts = [ @getMidPoint(fromPoints[0], fromPoints[1]), @getMidPoint(toPoints[0], toPoints[1]) ]
-      path = @createPathFromPoints(pts)
+      path = @createPathFromPoints(pts, false)
     else if sidesApart == 2 or sidesApart == 4
-      console.log "GENTLE CURVE"
-      # pts = [ @getMidPoint(fromPoints[0], fromPoints[1]), @getMidPoint(toPoints[0], toPoints[1]) ]
-      # path = @createPathFromPoints(pts)
-
       betweenSide = @getBetweenSide(fromSide, toSide)
       n = @getNeighborColRow(col, row, betweenSide)
       neighborCenter = @getHexPosition(n.col, n.row)
-      angles = @getGentleCurveAngles(adjFrom, adjTo)
+      angles = @getGentleCurveAngles(fromSide, toSide)
       path = @createArcPath(neighborCenter, @getHexSize() * 1.5, angles[0], angles[1])
-
-      # myCenter = @getHexPosition(col, row)
-      # path = @createPathFromPoints([neighborCenter, myCenter])
     else if sidesApart == 1 or sidesApart == 5 # sharp curve
-      originPoint = if sidesApart == 1 then fromPoints[1] else toPoints[1]
-      angles = @getSharpCurveAngles(adjFrom, adjTo)
+      originPoint = @getSharedPoint(fromPoints, toPoints)
+      angles = @getSharpCurveAngles(fromSide, toSide)
       path = @createArcPath(originPoint, @getHexSize() / 2, angles[0], angles[1])
+    return path
+
+  drawTrackNub: (col, row, fromSide, toSide) ->
+    path = @getPathForSideToSide(col, row, fromSide, toSide)
 
     if path
+      console.log "path for [#{col}],[#{row}] is [" + path + "]..."
       track = @snapCanvas.path(path)
       track.attr({ stroke: "black", "stroke-width": 12, fill: "none", "stroke-linecap": "butt" })
     else
@@ -290,3 +315,14 @@ class window.HexDrawer
           boxWidth = @hexWidth * .35
           boxHeight = @hexHeight * .3
           @drawRectangle({x: centerX - boxWidth/2, y: centerY + @hexHeight/2 - boxHeight * 1.2}, boxWidth, boxHeight, {stroke: "black", fill: "white"})
+
+        if (r == 0 and c == 1)
+          fakeCube = @drawRectangle({x: centerX-20, y: centerY-20 }, 40, 40, {stroke: "black", fill: "purple"})
+          fakeCube.click(() =>
+            console.log "clicked the cube!"
+            pathOne = @getPathForSideToSide(2, 1, 4, 6)
+            pathTwo = @getPathForSideToSide(1, 0, 3, 6)
+            console.log "paths:"
+            console.log pathOne
+            console.log pathTwo
+          )
