@@ -156,7 +156,10 @@ class window.HexDrawer
     if sidesApart == 3 # straight
       pts = [ @getMidPoint(fromPoints[0], fromPoints[1]), @getMidPoint(toPoints[0], toPoints[1]) ]
       path = @createPathFromPoints(pts)
-    else if sidesApart == 2 # gentle curve
+    else if sidesApart == 0 # gentle curve
+      console.log "GENTLE CURVE"
+      pts = [ @getMidPoint(fromPoints[0], fromPoints[1]), @getMidPoint(toPoints[0], toPoints[1]) ]
+      path = @createPathFromPoints(pts)
     else if sidesApart == 1 # sharp curve
       originPoint = if rawDiff == 1 then fromPoints[1] else toPoints[1]
       angles = @getSharpCurveAngles(adjFrom, adjTo)
@@ -199,7 +202,6 @@ class window.HexDrawer
           styleForHex = defaultHexStyle
 
         hex = @drawHex(center, @getHexSize(), styleForHex)
-
 
         if (d != undefined and d.town != undefined)
           @drawCircle(center, @getHexSize() * .6, d.town.style)
