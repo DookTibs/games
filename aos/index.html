@@ -8,12 +8,13 @@
 
 		<script>
 			$(document).ready(function() {
-				renderGrid();
+				// renderGrid();
+				var prc = new PuertoRicoAosController();
 			});
 
 			$(window).resize(function() {
 				$("#gameboard").empty();
-				renderGrid();
+				// renderGrid();
 			});
 
 			function renderGrid() {
