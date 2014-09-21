@@ -96,6 +96,14 @@ class window.SvgUtils
     comboPath = canvas.path(mergedPaths)
     comboPath.attr({ fill: "none", stroke: "none" })
 
+    ###
+    item.attr({cx: 100})
+    console.log("item is at [" + item.attr("cy") + "]/[" + item.attr("y") + "]")
+    item.attr({y: 100})
+    console.log("NOW item is at [" + item.attr("cy") + "]/[" + item.attr("y") + "]")
+    return
+    ###
+
     easeFxn = mina.easeinout
     bbox = item.getBBox()
     initialPos = { x: bbox.x, y: bbox.y }
@@ -103,7 +111,8 @@ class window.SvgUtils
       # console.log "value is [" + value + "]"
       movePoint = comboPath.getPointAtLength(value)
       # item.transform("t" + parseInt(movePoint.x) + "," + parseInt(movePoint.y))
-      item.transform("t" + parseInt(movePoint.x - initialPos.x - bbox.width/2) + "," + parseInt(movePoint.y - initialPos.y - bbox.height/2))
+      # item.transform("t" + parseInt(movePoint.x - initialPos.x - bbox.width/2) + "," + parseInt(movePoint.y - initialPos.y - bbox.height/2))
+      item.attr({x: parseInt(movePoint.x - bbox.width/2), y: parseInt(movePoint.y - bbox.height/2)})
       # item.x = movePoint.x
     ), 2000, easeFxn, ( () =>
       console.log "finished animation"

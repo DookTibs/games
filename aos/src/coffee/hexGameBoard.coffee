@@ -19,10 +19,11 @@ class window.HexGameBoard
     @setHexSize(Math.min(hVal, vVal) / 2)
 
   setHexSize: (@_hexSize) ->
-    # for flat topped hexes
-    @hexWidth = @getHexSize() * 2
-    @horizDistance = 3/4 * @hexWidth
-    @hexHeight = Math.sqrt(3)/2 * @hexWidth
+    if @_hexSize != -1
+        # for flat topped hexes
+        @hexWidth = @getHexSize() * 2
+        @horizDistance = 3/4 * @hexWidth
+        @hexHeight = Math.sqrt(3)/2 * @hexWidth
 
   getHexSize: () ->
     return @_hexSize
@@ -102,12 +103,12 @@ class window.HexGameBoard
     ]
 
     gentleData = [
-      [2, 1, 2, 4, rev]
-      [3, 0, 3, 5, rev]
-      [4, 1, 4, 6, rev]
+      [2, 1, 4, 2, rev]
+      [3, 0, 5, 3, rev]
+      [4, 1, 6, 4, rev]
       [4, 2, 1, 5, rev]
       [3, 2, 2, 6, rev]
-      [2, 2, 1, 3, rev]
+      [2, 2, 3, 1, rev]
     ]
 
     sharpData = [
@@ -131,21 +132,30 @@ class window.HexGameBoard
     sidesApart = Math.abs(sideA - sideB)
     # console.log "get gentle curves for [" + sideA + "]->[" + sideB + "] (" + sidesApart + " sides apart)"
 
+    frontHalfOnly = true
+
+    ###
+    if frontHalfOnly
+      frontHalfOnlyAdjustment = 30
+    else
+    ###
+    frontHalfOnlyAdjustment = 0
+
     if sidesApart == 2
       if (sideA < sideB)
         base = (sideA * 60) + 120
-        rv = [base, base-60]
+        rv = [base - frontHalfOnlyAdjustment, base-60]
       else
         base = (sideB * 60) + 120
-        rv = [base-60, base]
+        rv = [base-60, base - frontHalfOnlyAdjustment]
     else if sidesApart == 4
       if (sideA < sideB)
         base = (sideA - 1) * 60
-        rv = [base, base+60]
+        rv = [base, base+60 - frontHalfOnlyAdjustment]
       else
         base = (sideB - 1) * 60
-        rv = [base+60, base]
-
+        rv = [base+60 - frontHalfOnlyAdjustment, base]
+    
     return rv
 
   getSharpCurveAngles: (sideA, sideB) ->
@@ -209,7 +219,7 @@ class window.HexGameBoard
     if path
       # console.log "path for [#{col}],[#{row}] is [" + path + "]..."
       track = @snapCanvas.path(path)
-      track.attr({ stroke: "black", "stroke-width": 12, fill: "none", "stroke-linecap": "butt" })
+      track.attr({ stroke: "black", "stroke-width": 4, fill: "none", "stroke-linecap": "butt" })
     else
       console.log "invalid sides passed to drawTrackNub"
 
@@ -230,6 +240,8 @@ class window.HexGameBoard
     border.attr({ stroke: "black", "stroke-width": 5, fill: "none", "stroke-dasharray": "5,5" })
 
   drawHexGrid: (rows, cols, data, defaultHexStyle = { fill: "#659B74", stroke: "black" }) ->
+    if @_hexSize == -1
+      @sizeToFit(rows, cols)
     console.log "draing"
     for r in [0..rows-1]
       for c in [0..cols-1]
@@ -258,10 +270,13 @@ class window.HexGameBoard
           SvgUtils.drawRectangle(@snapCanvas, {x: centerX - boxWidth/2, y: centerY + @hexHeight/2 - boxHeight * 1.2}, boxWidth, boxHeight, {stroke: "black", fill: "white"})
 
     fakeCenter = @getHexPosition(1, 0)
-    fakeCube = SvgUtils.drawCenteredRectangle(@snapCanvas, {x: fakeCenter.x, y: fakeCenter.y }, 40, 40, {stroke: "black", fill: "purple"})
+    fakeCube = SvgUtils.drawCenteredRectangle(@snapCanvas, {x: fakeCenter.x, y: fakeCenter.y }, 20, 20, {stroke: "black", fill: "purple", id:"fakeCube"})
     # fakeCube = @drawCenteredRectangle({x: 0, y: 0 }, 40, 40, {stroke: "black", fill: "purple"})
     foo = (() =>
       console.log "animate the cube!"
+      cb = $("#fakeCube")
+      par = cb.parent()
+      cb.detach().appendTo(par)
       SvgUtils.animateAlongPath(@snapCanvas, fakeCube, [
                                   @getPathForSideToSide(1, 0, 6, 3)
                                   @getPathForSideToSide(2, 1, 6, 4)
