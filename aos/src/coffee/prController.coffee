@@ -1,11 +1,17 @@
 class window.PuertoRicoAosController extends AosController
+
   constructor: () ->
+    @ROWS = 5
+    @COLS = 13
+
     console.log "constructing Puerto Rico controller"
+    @hd = new HexGameBoard(this, "gameboard")
+    @hd.sizeToFit(@ROWS, @COLS)
     @buildBoard()
+    @renderBoard()
 
   buildBoard: () ->
-    @board = new AosBoard(5, 13)
-    # @board.setHexData(5, 1, { town: "blah" })
+    @board = new AosBoard(@ROWS, @COLS)
 
     mountains = [
         "1,3"
@@ -73,5 +79,7 @@ class window.PuertoRicoAosController extends AosController
       data = townData.split(",")
       @board.setHexTown(parseInt(data[0]), parseInt(data[1]), data[2])
 
+    @board.setHexCity(9, 0, "San Juan", "red")
 
     @board.debugBoard()
+    console.log "done!"

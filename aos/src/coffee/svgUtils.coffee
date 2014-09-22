@@ -117,3 +117,13 @@ class window.SvgUtils
     ), 2000, easeFxn, ( () =>
       console.log "finished animation"
     ))
+  
+  @bringToFront: (selector) ->
+    console.log "bringing [#{selector}] to front"
+    elements = $(selector)
+
+    for i in [0..elements.length]
+      el = elements.eq(i)
+      parent = el.parent()
+      el.detach().appendTo(parent)
+    

@@ -13,9 +13,13 @@ class window.HexData
     @town = null
     @city = null
   
-  setTown: (n) ->
-    @town = n
+  setTown: (d) ->
+    @town = d # name
     @type = HexData.TYPE_TOWN
+
+  setCity: (d) ->
+    @city = d # name/color
+    @type = HexData.TYPE_CITY
 
 #represents the entire game board
 class window.AosBoard
@@ -31,7 +35,11 @@ class window.AosBoard
 
   setHexTown: (col, row, townName) ->
     hd = @getHexData(col, row)
-    hd.setTown(townName)
+    hd.setTown({name: townName})
+
+  setHexCity: (col, row, cityName, cityColor) ->
+    hd = @getHexData(col, row)
+    hd.setCity({name: cityName, color: cityColor})
 
   setHexType: (col, row, type) ->
     hd = @getHexData(col, row)
@@ -48,7 +56,9 @@ class window.AosBoard
       for slot, c in row
         hd = @getHexData(c, r)
         if hd.town != null
-          rowRep += "[" + hd.town + "]\t\t"
+          rowRep += "[" + hd.town.name.substr(0,5) + "]\t"
+        else if hd.city != null
+          rowRep += "[" + hd.city.name.substr(0,5) + "]\t"
         else
-          rowRep += "[" + hd.type + "]\t"
+          rowRep += "[" + hd.type.substr(0, 5) + "]\t"
       console.log rowRep

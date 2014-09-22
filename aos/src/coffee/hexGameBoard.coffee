@@ -1,6 +1,6 @@
 class window.HexGameBoard
-  SIDE_PADDING: 1
-  constructor: (@snapCanvasId) ->
+  SIDE_PADDING: 20
+  constructor: (@controller, @snapCanvasId) ->
     console.log "now snap canvas is [" + @snapCanvasId + "]"
     @snapCanvas = Snap("#" + @snapCanvasId)
     @jqCanvas = $("#" + @snapCanvasId)
@@ -228,6 +228,7 @@ class window.HexGameBoard
     path = SvgUtils.createPathFromPoints(pts)
     border = @snapCanvas.path(path)
     border.attr({ stroke: "black", "stroke-width": thickness, fill: "none" })
+    return border
 
   paintDashedBorder: (col, row, side = -1) ->
     pts = @generateHexSidePoints(col, row, side)
@@ -239,6 +240,7 @@ class window.HexGameBoard
     border = @snapCanvas.path(path)
     border.attr({ stroke: "black", "stroke-width": 5, fill: "none", "stroke-dasharray": "5,5" })
 
+  ###
   drawHexGrid: (rows, cols, data, defaultHexStyle = { fill: "#659B74", stroke: "black" }) ->
     if @_hexSize == -1
       @sizeToFit(rows, cols)
@@ -291,5 +293,32 @@ class window.HexGameBoard
     # foo()
     fakeCube.click(foo)
     # setTimeout(foo, 500)
+  ###
 
+
+  renderTown: (center, townData) ->
+    SvgUtils.drawCircle(@snapCanvas, center, @getHexSize() * .6, @controller.getTownStyle())
+    t = SvgUtils.drawText(@snapCanvas, {x: center.x, y: center.y + @hexHeight/2 - (@hexHeight*.05)}, townData.name, @controller.getLabelStyle())
+    t.attr("font-size", @hexHeight * .14)
+ 
+  renderCity: (center, col, row, cityData) ->
+    SvgUtils.drawText(@snapCanvas, {x: center.x, y: center.y - @hexHeight/2 + (@hexHeight*.14)}, cityData.name, @controller.getLabelStyle())
+    boxWidth = @hexWidth * .35
+    boxHeight = @hexHeight * .3
+    SvgUtils.drawCenteredRectangle(@snapCanvas, {x: center.x, y: center.y + @hexHeight/3.4 }, boxWidth, boxHeight, {stroke: "black", fill: "white" })
+    border = @paintThickBorder(col, row, 5)
+    border.attr("class", "hex_outlines")
+
+  renderHexAt: (col, row, hexData) ->
+    console.log "renderHexAt [#{col},#{row}]"
+    center = @getHexPosition(col, row)
+    centerX = center.x
+    centerY = center.y
+    hex = SvgUtils.drawHex(@snapCanvas, center, @getHexSize(), @controller.getStyleForHexType(hexData.type))
+
+    if hexData.type == HexData.TYPE_TOWN
+      @renderTown(center, hexData.town)
+
+    if hexData.type == HexData.TYPE_CITY
+      @renderCity(center, col, row, hexData.city)
 
