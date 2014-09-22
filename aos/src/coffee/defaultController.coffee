@@ -2,6 +2,11 @@ class window.AosController
   constructor: () ->
     console.log "constructing standard game controller"
 
+    # tileDialog = $("<div>").attr("id", "tileChooserDialog").appendTo($("body"))
+    # tileDialog.html("this is the tile chooser")
+
+    @tb = new TileBank(this)
+
   getTownStyle: () ->
     return { stroke: "black", fill: "white" }
   
@@ -27,7 +32,7 @@ class window.AosController
     for r in [0...@ROWS]
       for c in [0...@COLS]
         data = @board.getHexData(c, r)
-        @hd.renderHexAt(c, r, data, @getStyleForHexType(data.type))
+        @hd.renderHexAt(c, r, data)
     
     # post rendering tasks - for instance bring borders to the front so they look correct
     SvgUtils.bringToFront(".hex_outlines")
