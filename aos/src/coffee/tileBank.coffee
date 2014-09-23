@@ -42,12 +42,13 @@ class window.TileBank
         $("#tileChooserDialog").dialog("close")
       ), stop: (() ->
         $("#tileChooserDialog").dialog("open")
-      ), drag: ((evt) ->
+      ), drag: ((evt) =>
         console.log("dragging...")
         svgOffset = $("#gameboard").offset()
         svgX = evt.pageX - svgOffset.left
         svgY = evt.pageY - svgOffset.top
-        console.log(svgX + "," + svgY)
+        # console.log(svgX + "," + svgY)
+        @controller.findCoords(svgX, svgY)
       )})
 
       $("#" + pd.id).height(hgb.hexHeight)

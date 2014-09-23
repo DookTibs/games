@@ -1,18 +1,7 @@
-class window.PuertoRicoAosController extends AosController
+class window.PuertoRicoAosController extends window.AosController
 
   constructor: () ->
-    super()
-    @ROWS = 5
-    @COLS = 13
-
-    # this belongs in default controller...
-    console.log "constructing Puerto Rico controller"
-    @hd = new HexGameBoard(this, "gameboard")
-    @hd.sizeToFit(@ROWS, @COLS)
-    @buildBoard()
-    @renderBoard()
-
-    @tb.initUi(@hd.getHexSize())
+    super(5, 13)
 
   buildBoard: () ->
     @board = new AosBoard(@ROWS, @COLS)

@@ -298,6 +298,7 @@ class window.HexGameBoard
 
   renderTown: (center, townData) ->
     SvgUtils.drawCircle(@snapCanvas, center, @getHexSize() * .6, @controller.getTownStyle())
+    # SvgUtils.drawCircle(Snap("#" + hex.attr("id")), {x:0,y:0}, @getHexSize() * .6, @controller.getTownStyle())
     t = SvgUtils.drawText(@snapCanvas, {x: center.x, y: center.y + @hexHeight/2 - (@hexHeight*.05)}, townData.name, @controller.getLabelStyle())
     t.attr("font-size", @hexHeight * .14)
  
@@ -314,7 +315,12 @@ class window.HexGameBoard
     center = @getHexPosition(col, row)
     centerX = center.x
     centerY = center.y
+
+    # hexContainer = @snapCanvas.svg(center.x, center.y, 100, 100)
+    # hex = SvgUtils.drawHex(hexContainer, {x:-100, y:-50}, @getHexSize(), @controller.getStyleForHexType(hexData.type))
+    
     hex = SvgUtils.drawHex(@snapCanvas, center, @getHexSize(), @controller.getStyleForHexType(hexData.type))
+    hex.attr("id", "boardhex_#{col}_#{row}")
 
     if hexData.type == HexData.TYPE_TOWN
       @renderTown(center, hexData.town)
