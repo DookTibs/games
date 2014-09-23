@@ -1,6 +1,6 @@
 class window.AosController
   constructor: (@ROWS, @COLS) ->
-    console.log "constructing standard game controller"
+    console.log "constructing standard game controller with [" + @ROWS + "] rows and [" + @COLS + "] cols"
 
     document.body.addEventListener('touchmove', ( (evt) ->
       evt.preventDefault();
@@ -10,14 +10,15 @@ class window.AosController
     # tileDialog.html("this is the tile chooser")
 
     # this belongs in default controller...
-    console.log "constructing Puerto Rico controller"
-    @hd = new HexGameBoard(this, "gameboard")
-    @hd.sizeToFit(@ROWS, @COLS)
+    @renderer = new BoardRenderer(this, "gameboard")
+    @renderer.sizeToFit(@ROWS, @COLS)
+    console.log "build the board..."
     @buildBoard()
+    console.log "render the board..."
     @renderBoard()
 
     @tb = new TileBank(this)
-    @tb.initUi(@hd.getHexSize())
+    @tb.initUi(@renderer.getHexSize())
 
 
   getTownStyle: () ->
@@ -48,7 +49,7 @@ class window.AosController
     for r in [0...@ROWS]
       for c in [0...@COLS]
         data = @board.getHexData(c, r)
-        @hd.renderHexAt(c, r, data)
+        @renderer.renderHexAt(c, r, data)
 
     # bh = $("#boardhex_5_2")
     # bh.attr("fill", "orange")
@@ -90,20 +91,20 @@ class window.AosController
     return { c: offset.c, r: offset.r }
 
   findCoords: (pixelX, pixelY) ->
-    actualOrigin = @hd.getHexPosition(0,0)
+    actualOrigin = @renderer.getHexPosition(0,0)
     coords = @pxToCoords(pixelX - actualOrigin.x, pixelY - actualOrigin.y)
     console.log(coords)
     # $("#boardhex_" + coords.c + "_" + coords.r).attr("fill", "purple")
 
   handleTileBankHexDrop: (pixelX, pixelY, nubs) ->
-    actualOrigin = @hd.getHexPosition(0,0)
+    actualOrigin = @renderer.getHexPosition(0,0)
     coords = @pxToCoords(pixelX - actualOrigin.x, pixelY - actualOrigin.y)
     for nub in nubs
       @board.addNubToHex(coords.c, coords.r, new TrackNub(nub.a,nub.b))
     data = @board.getHexData(coords.c, coords.r)
     console.log(@board.renderHexAt)
     data.reset = true
-    @hd.renderHexAt(coords.c, coords.r, data)
+    @renderer.renderHexAt(coords.c, coords.r, data)
 
   hexRound: (x, y, z) ->
     rx = Math.round(x)
@@ -124,7 +125,7 @@ class window.AosController
     return {x:rx, y:ry, z:rz}
 
   findApproxAxialLocation: (x, y) ->
-    size = @hd.getHexSize()
+    size = @renderer.getHexSize()
     c = 2/3 * x / size
     r = (-1/3 * x + 1/3*Math.sqrt(3) * y) / size
     return { c: c, r: r }

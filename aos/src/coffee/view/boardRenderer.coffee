@@ -1,4 +1,4 @@
-class window.HexGameBoard
+class window.BoardRenderer
   SIDE_PADDING: 20
   constructor: (@controller, @snapCanvasId) ->
     console.log "now snap canvas is [" + @snapCanvasId + "]"
@@ -46,49 +46,15 @@ class window.HexGameBoard
     center = @getHexPosition(col, row)
     pts = SvgUtils.generateHexPoints(center, @getHexSize())
     if side != -1
-      if side == 1
+      if side == AosBoard.DIR_NO
         pts = [pts[4], pts[5]]
-      else if side == 2
+      else if side == AosBoard.DIR_NE
         pts = [pts[5], pts[0]]
       else
         pts = pts[side-3..side-2]
     return pts
 
-
-  # given a column and row, and a direction to move in, give the column and row of that neighbor
-  getNeighborColRow: (col, row, dir) ->
-    nCol = col
-    nRow = row
-    if (dir == 1) # up
-      nRow--
-    else if (dir == 4) # down
-      nRow++
-    else
-      if (col % 2 == 1)
-        if (dir == 2)
-          nCol++
-        else if (dir == 3)
-          nCol++
-          nRow++
-        else if (dir == 5)
-          nCol--
-          nRow++
-        else if (dir == 6)
-          nCol--
-      else
-        if (dir == 2)
-          nRow--
-          nCol++
-        else if (dir == 3)
-          nCol++
-        else if (dir == 5)
-          nCol--
-        else if (dir == 6)
-          nCol--
-          nRow--
-
-    return { row: nRow, col: nCol }
-
+  ###
   testAllTrack: () ->
     rev = false
     testData = [
@@ -127,56 +93,8 @@ class window.HexGameBoard
       else
         @drawTrackNub(d[0], d[1], d[2], d[3])
     
-      
-  getGentleCurveAngles: (sideA, sideB) ->
-    sidesApart = Math.abs(sideA - sideB)
-    # console.log "get gentle curves for [" + sideA + "]->[" + sideB + "] (" + sidesApart + " sides apart)"
+  ###
 
-    frontHalfOnly = true
-
-    ###
-    if frontHalfOnly
-      frontHalfOnlyAdjustment = 30
-    else
-    ###
-    frontHalfOnlyAdjustment = 0
-
-    if sidesApart == 2
-      if (sideA < sideB)
-        base = (sideA * 60) + 120
-        rv = [base - frontHalfOnlyAdjustment, base-60]
-      else
-        base = (sideB * 60) + 120
-        rv = [base-60, base - frontHalfOnlyAdjustment]
-    else if sidesApart == 4
-      if (sideA < sideB)
-        base = (sideA - 1) * 60
-        rv = [base, base+60 - frontHalfOnlyAdjustment]
-      else
-        base = (sideB - 1) * 60
-        rv = [base+60 - frontHalfOnlyAdjustment, base]
-    
-    return rv
-
-  getSharpCurveAngles: (sideA, sideB) ->
-    sidesApart = Math.abs(sideA - sideB)
-    # console.log "get sharp curves for [" + sideA + "]->[" + sideB + "] (" + sidesApart + " sides apart)"
-
-    if sidesApart == 1
-      if (sideA < sideB)
-        base = sideA * 60
-        rv = [base+120, base]
-      else
-        base = sideB * 60
-        rv = [base, base+120]
-    else if sidesApart == 5
-      if (sideA < sideB)
-        rv = [0, 120]
-      else
-        rv = [120, 0]
-
-    # console.log "going from [" + rv[0] + "] -> [" + rv[1] + "]"
-    return rv
 
   # given two sides that are 2 apart, return the side between them
   getBetweenSide: (a, b) ->
@@ -185,12 +103,6 @@ class window.HexGameBoard
       return b - 1
     else if b - a == 4
       return (b % 6) + 1
-
-  getSharedPoint: (sideAPoints, sideBPoints) ->
-    if (sideAPoints[0].x == sideBPoints[1].x and sideAPoints[0].y == sideBPoints[1].y)
-      return sideAPoints[0]
-    else
-      return sideAPoints[1]
 
   getPathForSideToSide: (col, row, fromSide, toSide) ->
     sidesApart = Math.abs(fromSide - toSide)
@@ -203,13 +115,13 @@ class window.HexGameBoard
       path = SvgUtils.createPathFromPoints(pts, false)
     else if sidesApart == 2 or sidesApart == 4
       betweenSide = @getBetweenSide(fromSide, toSide)
-      n = @getNeighborColRow(col, row, betweenSide)
+      n = AosBoard.getNeighborColRow(col, row, betweenSide)
       neighborCenter = @getHexPosition(n.col, n.row)
-      angles = @getGentleCurveAngles(fromSide, toSide)
+      angles = HexUtils.getGentleCurveAngles(fromSide, toSide)
       path = SvgUtils.createArcPath(neighborCenter, @getHexSize() * 1.5, angles[0], angles[1])
     else if sidesApart == 1 or sidesApart == 5 # sharp curve
-      originPoint = @getSharedPoint(fromPoints, toPoints)
-      angles = @getSharpCurveAngles(fromSide, toSide)
+      originPoint = HexUtils.getSharedSidePoint(fromPoints, toPoints)
+      angles = HexUtils.getSharpCurveAngles(fromSide, toSide)
       path = SvgUtils.createArcPath(originPoint, @getHexSize() / 2, angles[0], angles[1])
     return path
 
@@ -241,36 +153,6 @@ class window.HexGameBoard
     border.attr({ stroke: "black", "stroke-width": 5, fill: "none", "stroke-dasharray": "5,5" })
 
   ###
-  drawHexGrid: (rows, cols, data, defaultHexStyle = { fill: "#659B74", stroke: "black" }) ->
-    if @_hexSize == -1
-      @sizeToFit(rows, cols)
-    console.log "draing"
-    for r in [0..rows-1]
-      for c in [0..cols-1]
-        center = @getHexPosition(c, r)
-        centerX = center.x
-        centerY = center.y
-
-        lookupKey = "#{c},#{r}"
-        d = data[lookupKey]
-        if d != undefined and d.style != undefined
-          styleForHex = d.style
-        else
-          styleForHex = defaultHexStyle
-
-        hex = SvgUtils.drawHex(@snapCanvas, center, @getHexSize(), styleForHex)
-
-        if (d != undefined and d.town != undefined)
-          SvgUtils.drawCircle(@snapCanvas, center, @getHexSize() * .6, d.town.style)
-          SvgUtils.drawText(@snapCanvas, {x: centerX, y: centerY + @hexHeight/2 - (@hexHeight*.05)}, d.town.name, d.town.labelStyle)
-
-        if (d != undefined and d.city != undefined)
-          hex.attr(d.city.style)
-          SvgUtils.drawText(@snapCanvas, {x: centerX, y: centerY - @hexHeight/2 + (@hexHeight*.13)}, d.city.name, d.city.labelStyle)
-          boxWidth = @hexWidth * .35
-          boxHeight = @hexHeight * .3
-          SvgUtils.drawRectangle(@snapCanvas, {x: centerX - boxWidth/2, y: centerY + @hexHeight/2 - boxHeight * 1.2}, boxWidth, boxHeight, {stroke: "black", fill: "white"})
-
     fakeCenter = @getHexPosition(1, 0)
     fakeCube = SvgUtils.drawCenteredRectangle(@snapCanvas, {x: fakeCenter.x, y: fakeCenter.y }, 20, 20, {stroke: "black", fill: "purple", id:"fakeCube"})
     # fakeCube = @drawCenteredRectangle({x: 0, y: 0 }, 40, 40, {stroke: "black", fill: "purple"})

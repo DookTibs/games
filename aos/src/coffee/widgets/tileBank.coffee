@@ -31,12 +31,12 @@ class window.TileBank
     ]
 
     for pd in pickerData
-      hgb = new HexGameBoard(@controller, pd.id)
-      hgb.setHexSize(tileSize)
-      hgb.SIDE_PADDING = 0
-      hgb.renderHexAt(0, 0, {type: HexData.TYPE_NORMAL})
+      tempRenderer = new BoardRenderer(@controller, pd.id)
+      tempRenderer.setHexSize(tileSize)
+      tempRenderer.SIDE_PADDING = 0
+      tempRenderer.renderHexAt(0, 0, {type: HexData.TYPE_NORMAL})
       for nub in pd.nubs
-        hgb.drawTrackNub(0, 0, nub.a, nub.b)
+        tempRenderer.drawTrackNub(0, 0, nub.a, nub.b)
 
       $("#" + pd.id).attr("nubData", JSON.stringify(pd.nubs))
 
@@ -59,5 +59,5 @@ class window.TileBank
         @controller.findCoords(svgX, svgY)
       )})
 
-      $("#" + pd.id).height(hgb.hexHeight)
-      $("#" + pd.id).width(hgb.hexWidth)
+      $("#" + pd.id).height(tempRenderer.hexHeight)
+      $("#" + pd.id).width(tempRenderer.hexWidth)
