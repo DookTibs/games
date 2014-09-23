@@ -12,6 +12,7 @@ class window.HexData
     @type = t
     @town = null
     @city = null
+    @nubs = []
   
   setTown: (d) ->
     @town = d # name
@@ -20,6 +21,9 @@ class window.HexData
   setCity: (d) ->
     @city = d # name/color
     @type = HexData.TYPE_CITY
+
+  addNub: (nub) ->
+    @nubs.push(nub)
 
 #represents the entire game board
 class window.AosBoard
@@ -44,6 +48,10 @@ class window.AosBoard
   setHexType: (col, row, type) ->
     hd = @getHexData(col, row)
     hd.type = type
+
+  addNubToHex: (col, row, nub) ->
+    hd = @getHexData(col, row)
+    hd.addNub(nub)
 
   getHexData: (col, row) ->
     hd = @boardStorage[row][col]

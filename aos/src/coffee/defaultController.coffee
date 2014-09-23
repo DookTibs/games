@@ -92,7 +92,18 @@ class window.AosController
   findCoords: (pixelX, pixelY) ->
     actualOrigin = @hd.getHexPosition(0,0)
     coords = @pxToCoords(pixelX - actualOrigin.x, pixelY - actualOrigin.y)
-    $("#boardhex_" + coords.c + "_" + coords.r).attr("fill", "purple")
+    console.log(coords)
+    # $("#boardhex_" + coords.c + "_" + coords.r).attr("fill", "purple")
+
+  handleTileBankHexDrop: (pixelX, pixelY, nubs) ->
+    actualOrigin = @hd.getHexPosition(0,0)
+    coords = @pxToCoords(pixelX - actualOrigin.x, pixelY - actualOrigin.y)
+    for nub in nubs
+      @board.addNubToHex(coords.c, coords.r, new TrackNub(nub.a,nub.b))
+    data = @board.getHexData(coords.c, coords.r)
+    console.log(@board.renderHexAt)
+    data.reset = true
+    @hd.renderHexAt(coords.c, coords.r, data)
 
   hexRound: (x, y, z) ->
     rx = Math.round(x)

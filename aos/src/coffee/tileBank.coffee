@@ -37,17 +37,25 @@ class window.TileBank
       hgb.renderHexAt(0, 0, {type: HexData.TYPE_NORMAL})
       for nub in pd.nubs
         hgb.drawTrackNub(0, 0, nub.a, nub.b)
+
+      $("#" + pd.id).attr("nubData", JSON.stringify(pd.nubs))
+
+      ctrl = @controller
       $("#" + pd.id).draggable({ containment: "#gameboard", appendTo: "body", helper: "clone", start: (() ->
         console.log "start drag!"
         $("#tileChooserDialog").dialog("close")
-      ), stop: (() ->
-        $("#tileChooserDialog").dialog("open")
-      ), drag: ((evt) =>
-        console.log("dragging...")
+      ), stop: ((evt) ->
         svgOffset = $("#gameboard").offset()
         svgX = evt.pageX - svgOffset.left
         svgY = evt.pageY - svgOffset.top
-        # console.log(svgX + "," + svgY)
+        console.log "stop!"
+        console.log $(this).attr("nubData")
+        ctrl.handleTileBankHexDrop(svgX, svgY, JSON.parse($(this).attr("nubData")))
+        $("#tileChooserDialog").dialog("open")
+      ), drag: ((evt) =>
+        svgOffset = $("#gameboard").offset()
+        svgX = evt.pageX - svgOffset.left
+        svgY = evt.pageY - svgOffset.top
         @controller.findCoords(svgX, svgY)
       )})
 

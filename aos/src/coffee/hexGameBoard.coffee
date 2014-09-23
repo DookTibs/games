@@ -310,7 +310,13 @@ class window.HexGameBoard
     border = @paintThickBorder(col, row, 5)
     border.attr("class", "hex_outlines")
 
+  clearHexAt: (col, row) ->
+    $("#boardhex_#{col}_#{row}").remove()
+
   renderHexAt: (col, row, hexData) ->
+    if hexData.reset
+      @clearHexAt(col, row)
+
     console.log "renderHexAt [#{col},#{row}]"
     center = @getHexPosition(col, row)
     centerX = center.x
@@ -327,4 +333,8 @@ class window.HexGameBoard
 
     if hexData.type == HexData.TYPE_CITY
       @renderCity(center, col, row, hexData.city)
+
+    if hexData.nubs != undefined and hexData.nubs.length > 0
+      for nub in hexData.nubs
+        @drawTrackNub(col, row, nub.sideA, nub.sideB)
 
