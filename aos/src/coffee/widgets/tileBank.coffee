@@ -2,7 +2,7 @@ class window.TileBank
   constructor: (@controller) ->
     $("#tileChooserDialog").dialog({
       title: "Pick a tile"
-      autoOpen: true
+      autoOpen: false
       width: 380
       height: 150
       modal: false

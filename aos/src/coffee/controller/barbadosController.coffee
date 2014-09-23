@@ -90,8 +90,35 @@ class window.BarbadosAosController extends window.AosController
     @board.setHexCity(0, 7, new City("Bridgetown", color, {die: 4, side:side}))
     @board.setHexCity(4, 9, new City("Oistins", color, {die: 5, side:side}))
     @board.setHexCity(7, 7, new City("Crane Beach", color, {die: 6, side:side}))
-    ###
+
+    # testing - let's add some track from Bridgetown to Oistins via South Coast
+    @board.addNubToHex(1, 6, new TrackNub(5, 2))
+    @board.addNubToHex(2, 6, new TrackNub(5, 6))
+    @board.addNubToHex(1, 5, new TrackNub(3, 4))
+    @board.addNubToHex(1, 5, new TrackNub(6, 1))
+    @board.addNubToHex(1, 6, new TrackNub(1, 4))
+    @board.addNubToHex(1, 7, new TrackNub(1, 4))
+    @board.addNubToHex(1, 8, new TrackNub(1, 2))
+    # @board.addNubToHex(2, 8, new TrackNub(5, 3))
+    # @board.addNubToHex(3, 8, new TrackNub(6, 3))
+    @board.addNubToHex(2, 8, new TrackNub(5, 2))
+    @board.addNubToHex(3, 7, new TrackNub(5, 2))
+    @board.addNubToHex(4, 7, new TrackNub(5, 2))
+    @board.addNubToHex(5, 6, new TrackNub(5, 3))
+    @board.addNubToHex(6, 7, new TrackNub(6, 4))
+    @board.addNubToHex(6, 8, new TrackNub(1, 2))
+
+    @board.addNubToHex(5, 6, new TrackNub(0, 1))
+    @board.addNubToHex(5, 5, new TrackNub(4, 2))
+    @board.addNubToHex(6, 6, new TrackNub(1, 6))
+    @board.addNubToHex(5, 5, new TrackNub(6, 3))
+    @board.addNubToHex(4, 5, new TrackNub(1, 3))
+
+    @board.addNubToHex(1, 7, new TrackNub(6, 3))
+    @board.addNubToHex(2, 8, new TrackNub(6, 3))
+    @board.addNubToHex(3, 8, new TrackNub(6, 3))
+
+    @board.addCubeToHex(0, 7, new Cube(Cube.COLOR_PURPLE))
+    @board.addCubeToHex(4, 9, new Cube(Cube.COLOR_BLUE))
 
     @board.debugBoard()
-    console.log "done!"
-    ###

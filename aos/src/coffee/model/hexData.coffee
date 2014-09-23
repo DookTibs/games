@@ -14,6 +14,7 @@ class window.HexData
     @city = null
     @nubs = []
     @previewNubs = []
+    @cubes = []
   
   setTown: (d) ->
     @town = d # name
@@ -24,7 +25,14 @@ class window.HexData
     @type = HexData.TYPE_CITY
 
   addNub: (nub) ->
-    @nubs.push(nub)
+    if (@town == null and @city == null)
+      @nubs.push(nub)
+    else if (@town != null)
+      if nub.sideA == 0 or nub.sideB == 0
+        @nubs.push(nub)
+      else
+        @nubs.push(new TrackNub(0, nub.sideA))
+        @nubs.push(new TrackNub(0, nub.sideB))
 
   addPreviewNub: (nub) ->
     @previewNubs.push(nub)
@@ -35,6 +43,32 @@ class window.HexData
   lockInPreviewNubs: () ->
     @nubs = @previewNubs
     @previewNubs = []
+
+  addCube: (cube) ->
+    @cubes.push(cube)
+
+  # return ALL nub exits
+  getNubEnds: () ->
+    rv = []
+    for nub in @nubs
+      if nub.sideA != 0 then rv.push(nub.sideA)
+      if nub.sideB != 0 then rv.push(nub.sideB)
+    return rv
+
+  getNubEnd: (nubStart) ->
+    for nub in @nubs
+      if (nub.sideA == nubStart)
+        return nub.sideB
+      else if (nub.sideB == nubStart)
+        return nub.sideA
+    return null
+
+  # removes the first cube of a given color from the hex
+  removeCube: (cube) ->
+    for c, idx in @cubes
+      if c.color == cube.color
+        @cubes.splice(idx, 1)
+        break
 
   rotatePreviewNubs: (dir) ->
     for nub in @previewNubs

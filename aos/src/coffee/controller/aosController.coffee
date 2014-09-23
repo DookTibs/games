@@ -27,6 +27,10 @@ class window.AosController
       # @tileBank.initUi(@renderer.getHexSize())
     )
 
+  findRouteFromHex: (col, row) ->
+    console.log "let's attempt to find a path from [" + col + "],[" + row + "]"
+    @pathfinder = new Pathfinder(@board, this)
+    @pathfinder.lookForPath(col, row)
 
   getTownStyle: () ->
     return { stroke: "black", fill: "white" }

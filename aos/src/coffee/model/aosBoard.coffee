@@ -17,6 +17,20 @@ class window.AosBoard
         rowData.push(new HexData(r, c, defaultType))
       @boardStorage.push(rowData)
 
+  @getOppositeSide: (dir) ->
+    if dir == AosBoard.DIR_NO
+      return AosBoard.DIR_SO
+    else if dir == AosBoard.DIR_NE
+      return AosBoard.DIR_SW
+    else if dir == AosBoard.DIR_NW
+      return AosBoard.DIR_SE
+    else if dir == AosBoard.DIR_SO
+      return AosBoard.DIR_NO
+    else if dir == AosBoard.DIR_SE
+      return AosBoard.DIR_NW
+    else if dir == AosBoard.DIR_SW
+      return AosBoard.DIR_NE
+
   # given a column and row, and a direction to move in, give the column and row of that neighbor
   @getNeighborColRow: (col, row, dir) ->
     nCol = col
@@ -67,6 +81,9 @@ class window.AosBoard
   addNubToHex: (col, row, nub) ->
     hd = @getHexData(col, row)
     hd.addNub(nub)
+
+  addCubeToHex: (col, row, cube) ->
+    @getHexData(col, row).addCube(cube)
 
   clearPreviewNubs: (col, row) ->
     hd = @getHexData(col, row)

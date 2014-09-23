@@ -110,7 +110,16 @@ class window.BoardRenderer
     fromPoints = @generateHexSidePoints(col, row, fromSide)
     toPoints = @generateHexSidePoints(col, row, toSide)
 
-    if sidesApart == 3 # straight
+    if fromSide == 0 or toSide == 0
+      hexCenter = @getHexPosition(col, row)
+      # edge to center
+      if fromSide == 0
+        console.log "fromside==0, toside=[" + toSide + "],toPoints:"
+        console.log toPoints
+        path = SvgUtils.createPathFromPoints([ { x: hexCenter.x, y: hexCenter.y}, SvgUtils.getMidPoint(toPoints[0], toPoints[1]) ])
+      else
+        path = SvgUtils.createPathFromPoints([ SvgUtils.getMidPoint(fromPoints[0], fromPoints[1]), { x: hexCenter.x, y: hexCenter.y} ])
+    else if sidesApart == 3 # straight
       pts = [ SvgUtils.getMidPoint(fromPoints[0], fromPoints[1]), SvgUtils.getMidPoint(toPoints[0], toPoints[1]) ]
       path = SvgUtils.createPathFromPoints(pts, false)
     else if sidesApart == 2 or sidesApart == 4
@@ -184,6 +193,13 @@ class window.BoardRenderer
     t = SvgUtils.drawText(@snapCanvas, {x: center.x, y: center.y + @hexHeight/2 - (@hexHeight*.05)}, town.name, @controller.getLabelStyle())
     t.attr("font-size", @hexHeight * .14)
  
+  drawCube: (center, col, row, cube) ->
+    cube = SvgUtils.drawCenteredRectangle(@snapCanvas, {x: center.x, y: center.y }, 20, 20, {stroke: "black", fill: cube.color, id:"fakeCube"})
+    thisHook = this
+    cube.click(() ->
+      thisHook.controller.findRouteFromHex(col, row)
+    )
+
   renderCity: (center, col, row, city) ->
     SvgUtils.drawText(@snapCanvas, {x: center.x, y: center.y - @hexHeight/2 + (@hexHeight*.14)}, city.name, @controller.getLabelStyle())
     boxWidth = @hexWidth * .35
@@ -224,3 +240,6 @@ class window.BoardRenderer
       for nub in hexData.previewNubs
         @drawTrackNub(col, row, nub.sideA, nub.sideB, "blue")
 
+    if (hexData.cubes != undefined and hexData.cubes.length > 0)
+      for cube in hexData.cubes
+        @drawCube(center, col, row, cube)
