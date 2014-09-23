@@ -20,6 +20,13 @@ class window.AosController
     @tb = new TileBank(this)
     @tb.initUi(@renderer.getHexSize())
 
+    $(window).resize(() =>
+      console.log "handle resize!"
+      @renderer.sizeToFit(@ROWS, @COLS)
+      @renderBoard(true)
+      # @tb.initUi(@renderer.getHexSize())
+    )
+
 
   getTownStyle: () ->
     return { stroke: "black", fill: "white" }
@@ -30,26 +37,32 @@ class window.AosController
   @debug: (s) ->
     $("#debugger").html(s + "<br>" + $("#debugger").html())
 
-  getStyleForHexType: (t) ->
+  getStyleForHexType: (hexData) ->
     defaultStyle = { fill: "#659B74", stroke: "black" }
     mountainStyle = { fill: "grey", stroke: "black" };
     blankStyle = { fill: "none", stroke: "none" };
     redCityStyle = { stroke: "black", fill: "#E4473F" }
+    yellowCityStyle = { stroke: "black", fill: "#FFFF00" }
+
+    t = hexData.type
 
     if t == HexData.TYPE_MOUNTAIN
       return mountainStyle
     else if t == HexData.TYPE_BLANK
       return blankStyle
     else if t == HexData.TYPE_CITY
-      return redCityStyle # really should look at color of city...
+      if hexData.city.color == "red"
+        return redCityStyle
+      else if hexData.city.color == "yellow"
+        return yellowCityStyle
     else # town, normal, etc.
       return defaultStyle
 
-  renderBoard: () ->
+  renderBoard: (reset = false) ->
     for r in [0...@ROWS]
       for c in [0...@COLS]
         data = @board.getHexData(c, r)
-        @renderer.renderHexAt(c, r, data)
+        @renderer.renderHexAt(c, r, data, reset)
 
     # bh = $("#boardhex_5_2")
     # bh.attr("fill", "orange")

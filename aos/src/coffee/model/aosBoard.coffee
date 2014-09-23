@@ -51,13 +51,13 @@ class window.AosBoard
 
     return { row: nRow, col: nCol }
 
-  setHexTown: (col, row, townName) ->
+  setHexTown: (col, row, town) ->
     hd = @getHexData(col, row)
-    hd.setTown({name: townName})
+    hd.setTown(town)
 
-  setHexCity: (col, row, cityName, cityColor) ->
+  setHexCity: (col, row, city) ->
     hd = @getHexData(col, row)
-    hd.setCity({name: cityName, color: cityColor})
+    hd.setCity(city)
 
   setHexType: (col, row, type) ->
     console.log "get data for [" + col + "],[" + row + "], ["+  type + "]"

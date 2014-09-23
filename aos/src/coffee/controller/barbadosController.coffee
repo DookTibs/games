@@ -60,11 +60,11 @@ class window.BarbadosAosController extends window.AosController
     ]
 
     towns = [
-        "0,2,???"
-        "0,4,???"
-        "1,8,???"
-        "3,2,???"
-        "5,6,???"
+        "0,2,Speightstown"
+        "0,4,Holetown"
+        "1,8,South Coast"
+        "3,2,Lakes Beach"
+        "5,6,Brighton"
     ]
 
     typeMappers = [
@@ -80,15 +80,16 @@ class window.BarbadosAosController extends window.AosController
 
     for townData in towns
       data = townData.split(",")
-      @board.setHexTown(parseInt(data[0]), parseInt(data[1]), data[2])
+      @board.setHexTown(parseInt(data[0]), parseInt(data[1]), new Town(data[2]))
 
     color = "yellow"
-    @board.setHexCity(0, 0, "North Point", color, 1)
-    @board.setHexCity(4, 4, "???", color, 2)
-    @board.setHexCity(6, 5, "???", color, 3)
-    @board.setHexCity(0, 7, "???", color, 4)
-    @board.setHexCity(4, 9, "???", color, 5)
-    @board.setHexCity(7, 7, "???", color, 6)
+    side = "white"
+    @board.setHexCity(0, 0, new City("North Point", color, { die: 1, side:side}))
+    @board.setHexCity(4, 4, new City("Bathsheba", color, {die: 2, side:side}))
+    @board.setHexCity(6, 5, new City("Bell Point", color, {die: 3, side:side}))
+    @board.setHexCity(0, 7, new City("Bridgetown", color, {die: 4, side:side}))
+    @board.setHexCity(4, 9, new City("Oistins", color, {die: 5, side:side}))
+    @board.setHexCity(7, 7, new City("Crane Beach", color, {die: 6, side:side}))
     ###
 
     @board.debugBoard()

@@ -70,9 +70,9 @@ class window.PuertoRicoAosController extends window.AosController
 
     for townData in towns
       data = townData.split(",")
-      @board.setHexTown(parseInt(data[0]), parseInt(data[1]), data[2])
+      @board.setHexTown(parseInt(data[0]), parseInt(data[1]), new Town(data[2]))
 
-    @board.setHexCity(9, 0, "San Juan", "red")
+    @board.setHexCity(9, 0, new City("San Juan", "red", null))
 
     @board.debugBoard()
     console.log "done!"

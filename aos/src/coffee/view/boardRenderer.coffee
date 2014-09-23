@@ -178,14 +178,14 @@ class window.BoardRenderer
   ###
 
 
-  renderTown: (center, townData) ->
+  renderTown: (center, town) ->
     SvgUtils.drawCircle(@snapCanvas, center, @getHexSize() * .6, @controller.getTownStyle())
     # SvgUtils.drawCircle(Snap("#" + hex.attr("id")), {x:0,y:0}, @getHexSize() * .6, @controller.getTownStyle())
-    t = SvgUtils.drawText(@snapCanvas, {x: center.x, y: center.y + @hexHeight/2 - (@hexHeight*.05)}, townData.name, @controller.getLabelStyle())
+    t = SvgUtils.drawText(@snapCanvas, {x: center.x, y: center.y + @hexHeight/2 - (@hexHeight*.05)}, town.name, @controller.getLabelStyle())
     t.attr("font-size", @hexHeight * .14)
  
-  renderCity: (center, col, row, cityData) ->
-    SvgUtils.drawText(@snapCanvas, {x: center.x, y: center.y - @hexHeight/2 + (@hexHeight*.14)}, cityData.name, @controller.getLabelStyle())
+  renderCity: (center, col, row, city) ->
+    SvgUtils.drawText(@snapCanvas, {x: center.x, y: center.y - @hexHeight/2 + (@hexHeight*.14)}, city.name, @controller.getLabelStyle())
     boxWidth = @hexWidth * .35
     boxHeight = @hexHeight * .3
     SvgUtils.drawCenteredRectangle(@snapCanvas, {x: center.x, y: center.y + @hexHeight/3.4 }, boxWidth, boxHeight, {stroke: "black", fill: "white" })
@@ -207,7 +207,7 @@ class window.BoardRenderer
     # hexContainer = @snapCanvas.svg(center.x, center.y, 100, 100)
     # hex = SvgUtils.drawHex(hexContainer, {x:-100, y:-50}, @getHexSize(), @controller.getStyleForHexType(hexData.type))
     
-    hex = SvgUtils.drawHex(@snapCanvas, center, @getHexSize(), @controller.getStyleForHexType(hexData.type))
+    hex = SvgUtils.drawHex(@snapCanvas, center, @getHexSize(), @controller.getStyleForHexType(hexData))
     hex.attr("id", "boardhex_#{col}_#{row}")
 
     if hexData.type == HexData.TYPE_TOWN
