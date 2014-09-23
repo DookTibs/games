@@ -13,6 +13,7 @@ class window.HexData
     @town = null
     @city = null
     @nubs = []
+    @previewNubs = []
   
   setTown: (d) ->
     @town = d # name
@@ -24,3 +25,17 @@ class window.HexData
 
   addNub: (nub) ->
     @nubs.push(nub)
+
+  addPreviewNub: (nub) ->
+    @previewNubs.push(nub)
+
+  clearPreviewNubs: () ->
+    @previewNubs = []
+
+  lockInPreviewNubs: () ->
+    @nubs = @previewNubs
+    @previewNubs = []
+
+  rotatePreviewNubs: (dir) ->
+    for nub in @previewNubs
+      nub.rotate(dir)

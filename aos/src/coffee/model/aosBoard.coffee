@@ -29,23 +29,23 @@ class window.AosBoard
       if (col % 2 == 1)
         if (dir == AosBoard.DIR_NE)
           nCol++
-        else if (dir == AosBoad.DIR_SE)
+        else if (dir == AosBoard.DIR_SE)
           nCol++
           nRow++
         else if (dir == AosBoard.DIR_SW)
           nCol--
           nRow++
-        else if (dir == AosBord.DIR_NW)
+        else if (dir == AosBoard.DIR_NW)
           nCol--
       else
         if (dir == AosBoard.DIR_NE)
           nRow--
           nCol++
-        else if (dir == AosBoad.DIR_SE)
+        else if (dir == AosBoard.DIR_SE)
           nCol++
         else if (dir == AosBoard.DIR_SW)
           nCol--
-        else if (dir == AosBord.DIR_NW)
+        else if (dir == AosBoard.DIR_NW)
           nCol--
           nRow--
 
@@ -67,6 +67,22 @@ class window.AosBoard
   addNubToHex: (col, row, nub) ->
     hd = @getHexData(col, row)
     hd.addNub(nub)
+
+  clearPreviewNubs: (col, row) ->
+    hd = @getHexData(col, row)
+    hd.clearPreviewNubs()
+
+  lockInPreviewNubs: (col, row) ->
+    hd = @getHexData(col, row)
+    hd.lockInPreviewNubs()
+
+  addPreviewNubToHex: (col, row, nub) ->
+    hd = @getHexData(col, row)
+    hd.addPreviewNub(nub)
+
+  rotatePreviewNubs: (col, row, dir) ->
+    hd = @getHexData(col, row)
+    hd.rotatePreviewNubs(dir)
 
   getHexData: (col, row) ->
     hd = @boardStorage[row][col]

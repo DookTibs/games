@@ -125,13 +125,13 @@ class window.BoardRenderer
       path = SvgUtils.createArcPath(originPoint, @getHexSize() / 2, angles[0], angles[1])
     return path
 
-  drawTrackNub: (col, row, fromSide, toSide) ->
+  drawTrackNub: (col, row, fromSide, toSide, color = "black") ->
     path = @getPathForSideToSide(col, row, fromSide, toSide)
 
     if path
       # console.log "path for [#{col}],[#{row}] is [" + path + "]..."
       track = @snapCanvas.path(path)
-      track.attr({ stroke: "black", "stroke-width": 4, fill: "none", "stroke-linecap": "butt" })
+      track.attr({ stroke: color, "stroke-width": 4, fill: "none", "stroke-linecap": "butt" })
     else
       console.log "invalid sides passed to drawTrackNub"
 
@@ -219,4 +219,8 @@ class window.BoardRenderer
     if hexData.nubs != undefined and hexData.nubs.length > 0
       for nub in hexData.nubs
         @drawTrackNub(col, row, nub.sideA, nub.sideB)
+
+    if hexData.previewNubs != undefined and hexData.previewNubs.length > 0
+      for nub in hexData.previewNubs
+        @drawTrackNub(col, row, nub.sideA, nub.sideB, "blue")
 

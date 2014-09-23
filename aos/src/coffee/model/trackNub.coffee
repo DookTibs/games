@@ -8,3 +8,20 @@ class window.TrackNub
       return true
     else
       return false
+  
+  stayInBounds: (x) ->
+    if x > 6
+      return x % 6
+    else if x < 1
+      return 6 - (x % 6)
+    else
+      return x
+
+  rotate: (dir) ->
+    # console.log "rotate the nub [" + dir + "] (" + @sideA + " <-> " + @sideB + ")"
+    @sideA += dir
+    @sideB += dir
+
+    @sideA = @stayInBounds(@sideA)
+    @sideB = @stayInBounds(@sideB)
+    # console.log "after rot, (" + @sideA + " <-> " + @sideB + ")"

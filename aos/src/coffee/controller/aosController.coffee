@@ -17,14 +17,14 @@ class window.AosController
     console.log "render the board..."
     @renderBoard()
 
-    @tb = new TileBank(this)
-    @tb.initUi(@renderer.getHexSize())
+    @tileBank = new TileBank(this)
+    @tileBank.initUi(@renderer.getHexSize())
 
     $(window).resize(() =>
       console.log "handle resize!"
       @renderer.sizeToFit(@ROWS, @COLS)
       @renderBoard(true)
-      # @tb.initUi(@renderer.getHexSize())
+      # @tileBank.initUi(@renderer.getHexSize())
     )
 
 
@@ -58,11 +58,15 @@ class window.AosController
     else # town, normal, etc.
       return defaultStyle
 
+  drawHexAt: (c, r, reset) ->
+    data = @board.getHexData(c, r)
+    data.reset = reset 
+    @renderer.renderHexAt(c, r, data)
+
   renderBoard: (reset = false) ->
     for r in [0...@ROWS]
       for c in [0...@COLS]
-        data = @board.getHexData(c, r)
-        @renderer.renderHexAt(c, r, data, reset)
+        @drawHexAt(c, r, reset)
 
     # bh = $("#boardhex_5_2")
     # bh.attr("fill", "orange")
@@ -109,15 +113,40 @@ class window.AosController
     console.log(coords)
     # $("#boardhex_" + coords.c + "_" + coords.r).attr("fill", "purple")
 
+  handleTileBankOk: () ->
+    @board.lockInPreviewNubs(@previewHexCoords.c, @previewHexCoords.r)
+    @drawHexAt(@previewHexCoords.c, @previewHexCoords.r, true)
+    @tileBank.hideRotationUi() 
+    $("#tileChooserDialog").dialog("open")
+
+  handleTileBankCancel: () ->
+    @board.clearPreviewNubs(@previewHexCoords.c, @previewHexCoords.r)
+    @drawHexAt(@previewHexCoords.c, @previewHexCoords.r, true)
+    @tileBank.hideRotationUi() 
+    $("#tileChooserDialog").dialog("open")
+
+  handleTileBankPreviewRotation: (dir) ->
+    @board.rotatePreviewNubs(@previewHexCoords.c, @previewHexCoords.r, dir)
+    # data = @board.getHexData(@previewHexCoords.c, @previewHexCoords.r)
+    # data.reset = true
+    # @renderer.renderHexAt(@previewHexCoords.c, @previewHexCoords.r, data)
+    @drawHexAt(@previewHexCoords.c, @previewHexCoords.r, true)
+
   handleTileBankHexDrop: (pixelX, pixelY, nubs) ->
-    actualOrigin = @renderer.getHexPosition(0,0)
-    coords = @pxToCoords(pixelX - actualOrigin.x, pixelY - actualOrigin.y)
+    firstHexOrigin = @renderer.getHexPosition(0,0)
+    coords = @pxToCoords(pixelX - firstHexOrigin.x, pixelY - firstHexOrigin.y)
     for nub in nubs
-      @board.addNubToHex(coords.c, coords.r, new TrackNub(nub.a,nub.b))
-    data = @board.getHexData(coords.c, coords.r)
-    console.log(@board.renderHexAt)
-    data.reset = true
-    @renderer.renderHexAt(coords.c, coords.r, data)
+      @board.addPreviewNubToHex(coords.c, coords.r, new TrackNub(nub.a,nub.b))
+    @drawHexAt(coords.c, coords.r, true)
+    # data = @board.getHexData(coords.c, coords.r)
+    # data.reset = true
+    # @renderer.renderHexAt(coords.c, coords.r, data)
+
+    @previewHexCoords = coords
+
+    # show the rotation ui
+    hexCoords = @renderer.getHexPosition(coords.c, coords.r)
+    @tileBank.showRotationUi(hexCoords, @renderer.getHexSize() * 2.2)
 
   hexRound: (x, y, z) ->
     rx = Math.round(x)

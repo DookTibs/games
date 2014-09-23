@@ -10,8 +10,21 @@ class window.TileBank
 
     $("#tileChooserLauncher").click(() ->
       $("#tileChooserDialog").dialog("open")
-
     )
+
+    $("#tileRotater #leftRot").click(() => @controller.handleTileBankPreviewRotation(-1))
+    $("#tileRotater #rightRot").click(() => @controller.handleTileBankPreviewRotation(1))
+    $("#tileRotater #okTile").click(() => @controller.handleTileBankOk())
+    $("#tileRotater #cancelTile").click(() => @controller.handleTileBankCancel())
+
+  hideRotationUi: () ->
+    $("#tileRotater").css("display", "none")
+
+  showRotationUi: (coords, size) ->
+    rotateUi = $("#tileRotater")
+    rotateUi.width(size).height(size)
+    rotateUi.css({ display: "block", left: coords.x - rotateUi.width()/2.2, top: coords.y - rotateUi.height()/2.2})
+
 
   initUi: (tileSize) ->
     pickerData = [
@@ -51,7 +64,7 @@ class window.TileBank
         console.log "stop!"
         console.log $(this).attr("nubData")
         ctrl.handleTileBankHexDrop(svgX, svgY, JSON.parse($(this).attr("nubData")))
-        $("#tileChooserDialog").dialog("open")
+        # $("#tileChooserDialog").dialog("open")
       ), drag: ((evt) =>
         svgOffset = $("#gameboard").offset()
         svgX = evt.pageX - svgOffset.left

@@ -48,3 +48,18 @@
 	fill: red;
 }
 */
+
+#tileRotater {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100px;
+	height: 100px;
+	// background-color: green;
+	display:none;
+}
+
+
+#tileRotater span {
+	position:absolute;
+}
