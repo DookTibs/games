@@ -105,6 +105,7 @@ class window.BoardRenderer
       return (b % 6) + 1
 
   getPathForSideToSide: (col, row, fromSide, toSide) ->
+    console.log "getPath [" + col + "," + row + "]...[" + fromSide + "<->" + toSide + "]"
     sidesApart = Math.abs(fromSide - toSide)
 
     fromPoints = @generateHexSidePoints(col, row, fromSide)
@@ -114,11 +115,9 @@ class window.BoardRenderer
       hexCenter = @getHexPosition(col, row)
       # edge to center
       if fromSide == 0
-        console.log "fromside==0, toside=[" + toSide + "],toPoints:"
-        console.log toPoints
-        path = SvgUtils.createPathFromPoints([ { x: hexCenter.x, y: hexCenter.y}, SvgUtils.getMidPoint(toPoints[0], toPoints[1]) ])
+        path = SvgUtils.createPathFromPoints([ { x: hexCenter.x, y: hexCenter.y}, SvgUtils.getMidPoint(toPoints[0], toPoints[1]) ], false)
       else
-        path = SvgUtils.createPathFromPoints([ SvgUtils.getMidPoint(fromPoints[0], fromPoints[1]), { x: hexCenter.x, y: hexCenter.y} ])
+        path = SvgUtils.createPathFromPoints([ SvgUtils.getMidPoint(fromPoints[0], fromPoints[1]), { x: hexCenter.x, y: hexCenter.y} ], false)
     else if sidesApart == 3 # straight
       pts = [ SvgUtils.getMidPoint(fromPoints[0], fromPoints[1]), SvgUtils.getMidPoint(toPoints[0], toPoints[1]) ]
       path = SvgUtils.createPathFromPoints(pts, false)
@@ -195,9 +194,10 @@ class window.BoardRenderer
  
   drawCube: (center, col, row, cube) ->
     cube = SvgUtils.drawCenteredRectangle(@snapCanvas, {x: center.x, y: center.y }, 20, 20, {stroke: "black", fill: cube.color, id:"fakeCube"})
+    cube.attr("class", "cube")
     thisHook = this
     cube.click(() ->
-      thisHook.controller.findRouteFromHex(col, row)
+      thisHook.controller.findRouteFromHex(col, row, {cube:this})
     )
 
   renderCity: (center, col, row, city) ->

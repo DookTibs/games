@@ -114,7 +114,7 @@ class window.SvgUtils
       # item.transform("t" + parseInt(movePoint.x - initialPos.x - bbox.width/2) + "," + parseInt(movePoint.y - initialPos.y - bbox.height/2))
       item.attr({x: parseInt(movePoint.x - bbox.width/2), y: parseInt(movePoint.y - bbox.height/2)})
       # item.x = movePoint.x
-    ), 2000, easeFxn, ( () =>
+    ), 5000, easeFxn, ( () =>
       console.log "finished animation"
     ))
   
