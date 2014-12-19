@@ -1,0 +1,20 @@
+body {
+	background-color: black;
+}
+
+.led {
+	width: 30px;
+	height: 30px;
+	background-color: lightgrey;
+	position: absolute;
+	border-radius: 50%;
+}
+
+.color_red { background-color: red; }
+.color_orange { background-color: orange; }
+.color_yellow { background-color: yellow; }
+.color_green { background-color: green; }
+.color_blue { background-color: blue; }
+.color_indigo { background-color: indigo; }
+.color_violet { background-color: violet; }
+.color_black { background-color: black; }
