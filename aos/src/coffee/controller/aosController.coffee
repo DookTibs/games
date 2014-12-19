@@ -27,10 +27,24 @@ class window.AosController
       # @tileBank.initUi(@renderer.getHexSize())
     )
 
-  findRouteFromHex: (col, row) ->
+  findRouteFromHex: (col, row, extraStuff) ->
     console.log "let's attempt to find a path from [" + col + "],[" + row + "]"
-    @pathfinder = new Pathfinder(@board, this)
-    @pathfinder.lookForPath(col, row)
+    @routeFinder = new RouteFinder(@board, this)
+    @routeFinder.lookForRoute(col, row)
+
+    routes = @routeFinder.foundRoutes
+    r = routes[0]
+    paths = []
+    for step in r.split("/")
+      console.log "next step [" + step + "]"
+      coordsAndSides = step.split(":")
+      coords = (coordsAndSides[0]).split(",")
+      sides = (coordsAndSides[1]).split(",")
+      path = @renderer.getPathForSideToSide(parseInt(coords[0]), parseInt(coords[1]), parseInt(sides[0]), parseInt(sides[1]))
+      console.log "converted path: " + path
+      paths.push(path)
+    SvgUtils.bringToFront(".cube")
+    SvgUtils.animateAlongPath(@renderer.snapCanvas, extraStuff.cube, paths)
 
   getTownStyle: () ->
     return { stroke: "black", fill: "white" }
